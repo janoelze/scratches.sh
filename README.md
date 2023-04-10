@@ -1,6 +1,10 @@
 # scratches
 
-a place for your php, html, js, css experiments.
+a place for your php, html, js, css experiments. allows you to manage a directory of experiments and serve them locally via php's builtin server.
+
+## Dependencies
+
+* PHP
 
 ## Installation
 
