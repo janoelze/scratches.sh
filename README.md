@@ -51,7 +51,7 @@ __Create a new scratch__
 ```
 $ scratches new
 Enter a name for the scratch (optional): hello world
-Created scratch 'hello-world'.
+Created scratch 'hello-world'
 ```
 
 __List all scratches__
@@ -75,20 +75,20 @@ $ scratches edit hello-world
 __Delete a scratch__
 ```
 $ scratches rm hello-world
-Stopped scratch 'hello-world'.
-Removed scratch 'hello-world'.
+Stopped scratch 'hello-world'
+Removed scratch 'hello-world'
 ```
 
 __Start all scratches__
 ```
 $ scratches start
-Started 2 scratches.
+Started 2 scratches
 ```
 
 __Shut down all scratches__
 ```
 $ scratches stop
-Stopped 2 scratches.
+Stopped 2 scratches
 ```
 
 __Open a public ngrok tunnel to your scratch (requires ngrok to be installed)__
