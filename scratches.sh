@@ -52,7 +52,7 @@ function scratch_is_duplicate(){
   local dir="$scr_dir/$scr_uuid"
 
   if [ -d "$dir" ]; then
-    echo "Scratch '$scr_uuid' already exists."
+    echo "Scratch '$scr_uuid' already exists"
     return 0
   fi
 
@@ -68,7 +68,7 @@ function new_scratch(){
   fi
 
   if scratch_is_duplicate "$scr_uuid"; then
-    echo "Scratch '$scr_uuid' already exists."
+    echo "Scratch '$scr_uuid' already exists"
     return
   fi
 
@@ -76,7 +76,7 @@ function new_scratch(){
   register_hostname "$scr_uuid"
   start_scratch "$scr_uuid"
 
-  echo "Created scratch '$scr_uuid'."
+  echo "Created scratch '$scr_uuid'"
 }
 
 function get_open_port() {
@@ -99,8 +99,6 @@ function start_scratch(){
   local open_port=$(get_open_port)
   local tmp_file=$(mktemp)
 
-  echo "Starting scratch '$scr_uuid' on port $open_port"
-
   if [ -z "$pid" ]; then
     local address="$scr_uuid.$scr_hostname:$open_port"
     php -q \
@@ -117,9 +115,9 @@ function stop_scratch(){
 
   if [ -n "$pid" ]; then
     sudo_exec "kill $pid"
-    echo "Stopped scratch '$1'."
+    echo "Stopped scratch '$1'"
   else
-    echo "Scratch '$1' is not running."
+    echo "Scratch '$1' is not running"
   fi
 }
 
@@ -133,14 +131,14 @@ function remove_scratch(){
   local scr_dir=$scr_dir/$scr_uuid
 
   if [ ! -d "$scr_dir" ]; then
-    echo "Scratch '$scr_uuid' does not exist."
+    echo "Scratch '$scr_uuid' does not exist"
     return
   fi
 
   unregister_hostname $scr_uuid
   stop_scratch $scr_uuid
   rm -rf "$scr_dir/$scr_uuid"
-  echo "Removed scratch '$scr_uuid'."
+  echo "Removed scratch '$scr_uuid'"
 }
 
 function start_all_scratches(){
@@ -150,7 +148,7 @@ function start_all_scratches(){
     start_scratch $scr_uuid
     n=$(($n+1))
   done
-  echo "Started $n scratches."
+  echo "Started $n scratches"
 }
 
 function stop_all_scratches() {
@@ -159,7 +157,7 @@ function stop_all_scratches() {
     sudo_exec "kill $pid"
     n=$((n+1))
   done
-  echo "Stopped $n scratches."
+  echo "Stopped $n scratches"
 }
 
 
@@ -211,7 +209,7 @@ function list_all_scratches(){
     n=$((n+1))
   done
   if [ $n -eq 0 ]; then
-    echo "No scratches found."
+    echo "No scratches found"
   fi
 }
 
@@ -226,7 +224,7 @@ function open_scratch(){
   local url=$(get_scratch_address $scr_uuid)
 
   if [ -z "$url" ]; then
-    echo "Scratch '$scr_uuid' is not running."
+    echo "Scratch '$scr_uuid' is not running"
     return
   fi
 
@@ -254,7 +252,7 @@ function start_ngrok_tunnel(){
   done
 
   if [ -z "$port" ]; then
-    echo "Scratch '$scr_uuid' is not running."
+    echo "Scratch '$scr_uuid' is not running"
     return
   fi
 
