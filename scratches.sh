@@ -267,7 +267,15 @@ function start_ngrok_tunnel(){
   ngrok http "$host:$port"
 }
 
+function require_param(){
+  if [ -z "$1" ]; then
+    echo "$2"
+    exit 1
+  fi
+}
+
 if [ "$1" = "tunnel" ]; then
+  require_param "$2" "Please provide a scratch id."
   if [ "$(is_installed "ngrok")" -eq 1 ]; then
     start_ngrok_tunnel "$2"
   else
@@ -278,10 +286,13 @@ elif [ "$1" = "new" ]; then
 elif [ "$1" = "ls" ]; then
   list_all_scratches
 elif [ "$1" = "edit" ]; then
+  require_param "$2" "Please provide a scratch id."
   edit_scratch "$2"
 elif [ "$1" = "open" ]; then
+  require_param "$2" "Please provide a scratch id."
   open_scratch "$2"
 elif [ "$1" = "rm" ]; then
+  require_param "$2" "Please provide a scratch id."
   remove_scratch "$2"
 elif [ "$1" = "start" ]; then
   if [ -z "$2" ]; then
@@ -304,6 +315,6 @@ else
   echo "  stop - stop all scratches"
   echo "  edit - edit a scratch (requires vscode)"
   if [ $(is_installed "ngrok") -eq 1 ]; then
-    echo "  tunnel - tunnel all scratches (requires ngrok)"
+    echo "  tunnel - tunnel a scratch (requires ngrok)"
   fi
 fi

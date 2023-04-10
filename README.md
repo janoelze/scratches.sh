@@ -42,7 +42,7 @@ scratches.sh
   start - start all scratches
   stop - stop all scratches
   edit - edit a scratch (requires vscode)
-  tunnel - tunnel all scratches (requires ngrok)
+  tunnel - tunnel a scratch (requires ngrok)
 ```
 
 ## Usage
