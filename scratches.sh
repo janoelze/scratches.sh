@@ -1,8 +1,9 @@
+#!/usr/bin/env bash
+
 scr_dir=$HOME/scratches
 scr_hostname="scratch"
 scr_hosts_file="/etc/hosts"
 scr_scratch_file=".scratch"
-scr_user=$(ls -ld $HOME | awk '{print $3}')
 
 function sudo_exec(){
   local cmd=$1
@@ -14,6 +15,10 @@ function register_hostname(){
   local host="127.0.0.1"
   local domain="$scr_uuid.$scr_hostname"
 
+  if grep -q "$domain" $scr_hosts_file; then
+    return
+  fi
+
   sudo_exec "echo $host\t$domain >> /etc/hosts"
 }
 
@@ -22,7 +27,7 @@ function unregister_hostname(){
 }
 
 function random_id(){
-  echo $(uuidgen | cut -d'-' -f1)
+  echo "$(uuidgen | cut -d'-' -f1)"
 }
 
 function slugify() {
@@ -129,7 +134,7 @@ function remove_scratch(){
 
   unregister_hostname $scr_uuid
   stop_scratch $scr_uuid
-  rm -rf $scr_dir/$scr_uuid
+  rm -rf "$scr_dir/$scr_uuid"
   echo "Removed scratch '$scr_uuid'."
 }
 
@@ -179,7 +184,7 @@ function get_all_scratches(){
     fi
     scratches+=($(basename $dir))
   done
-  echo ${scratches[@]}
+  echo "${scratches[@]}"
 }
 
 function list_all_scratches(){
