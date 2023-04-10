@@ -42,6 +42,11 @@ RUNNING	68500	audio-visualizer  http://audio-visualizer.scratch:63928
 RUNNING	13316	hello-world       http://hello-world.scratch:56233
 ```
 
+__Open a scratch in your default browser__
+```
+$ scratches open "hello-world"
+```
+
 __Open a scratch in Visual Studio Code__
 ```
 $ scratches edit "hello-world"

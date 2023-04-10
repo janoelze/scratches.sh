@@ -19,7 +19,7 @@ function register_hostname(){
     return
   fi
 
-  sudo_exec "echo $host\t$domain >> /etc/hosts"
+  sudo_exec "echo $host $domain >> /etc/hosts"
 }
 
 function unregister_hostname(){
@@ -166,7 +166,12 @@ function stop_all_scratches() {
 function get_scratch_address(){
   scr_uuid=$1
   address=$(ps aux | grep $scr_uuid | awk '/php/ && /-S.*\.scratch/ {for(i=1; i<=NF; i++) if ($i ~ /\.scratch/) print $i}')
-  echo "http://$address"
+
+  if [ -z "$address" ]; then
+    echo ""
+  else
+    echo "http://$address"
+  fi
 }
 
 function get_scratch_pid(){
@@ -208,6 +213,24 @@ function list_all_scratches(){
   if [ $n -eq 0 ]; then
     echo "No scratches found."
   fi
+}
+
+function open_scratch(){
+  local scr_uuid=$1
+  local pid=$(get_scratch_pid $scr_uuid)
+
+  if [ -z "$pid" ]; then
+    start_scratch $scr_uuid
+  fi
+
+  local url=$(get_scratch_address $scr_uuid)
+
+  if [ -z "$url" ]; then
+    echo "Scratch '$scr_uuid' is not running."
+    return
+  fi
+
+  open $url
 }
 
 function is_installed(){
@@ -256,6 +279,8 @@ elif [ "$1" = "ls" ]; then
   list_all_scratches
 elif [ "$1" = "edit" ]; then
   edit_scratch "$2"
+elif [ "$1" = "open" ]; then
+  open_scratch "$2"
 elif [ "$1" = "rm" ]; then
   remove_scratch "$2"
 elif [ "$1" = "start" ]; then
@@ -274,6 +299,7 @@ else
   echo "scratches.sh"
   echo "  new - create a new scratch"
   echo "  list - list all scratches"
+  echo "  open - open a scratch in your default browser"
   echo "  start - start all scratches"
   echo "  stop - stop all scratches"
   echo "  edit - edit a scratch (requires vscode)"
