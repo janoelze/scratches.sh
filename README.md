@@ -11,7 +11,7 @@ $ git clone git@github.com:janoelze/scratches.git
 After cloning the repository you can add an alias to your .bashrc or .zshrc:
 
 ```
-alias scratches="sh $HOME/src/scratches/scratches.sh"
+alias scratches="sh {locationToRepo}/scratches.sh"
 ```
 
 ## Usage
