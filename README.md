@@ -4,11 +4,11 @@
   <br>
 </p>
 
-# scratches
+# scratches.sh
 
 *__get in loser, we're ditching docker!__*
 
-_Scratches_ is a place for your web experiments. Think of it as a local version of codepen.io or JSFiddle. It manages a simple directory of experiments (called scratches), registers a host in your /etc/hosts file and serves them locally through PHP's builtin server, resulting in a URL like hello-world.sketch:8080. In short: Just type `scratch new` in your terminal, give your scratch a name and _scratches_ will provide you with directory where you can tinker just like you would on an Apache server.
+`scratches.sh` is a place for your web experiments. Think of it as a local version of codepen.io or JSFiddle. It manages a simple directory of experiments (called scratches), registers a host in your /etc/hosts file and serves them locally through PHP's builtin server, resulting in a URL like hello-world.sketch:8080. In short: Just type `scratch new` in your terminal, give your scratch a name and `scratches.sh` will provide you with directory where you can tinker just like you would on an Apache server.
 
 ## Dependencies
 
@@ -17,7 +17,7 @@ _Scratches_ is a place for your web experiments. Think of it as a local version 
 ## Installation
 
 ```
-$ git clone git@github.com:janoelze/scratches.git
+$ git clone git@github.com:janoelze/scratches.sh.git
 ```
 
 After cloning the repository you can add an alias to your .bashrc or .zshrc:
