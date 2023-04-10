@@ -26,6 +26,20 @@ After cloning the repository you can add an alias to your .bashrc or .zshrc:
 alias scratches="sh {locationToRepo}/scratches.sh"
 ```
 
+## Commands
+
+```
+$ scratches
+scratches.sh
+  new - create a new scratch
+  list - list all scratches
+  open - open a scratch in your default browser
+  start - start all scratches
+  stop - stop all scratches
+  edit - edit a scratch (requires vscode)
+  tunnel - tunnel all scratches (requires ngrok)
+```
+
 ## Usage
 
 __Create a new scratch__
