@@ -27,11 +27,11 @@ function unregister_hostname(){
 }
 
 function random_id(){
-  echo "$(uuidgen | cut -d'-' -f1)"
+  uuidgen | cut -d'-' -f1
 }
 
 function slugify() {
-  echo $1 | tr '[:upper:]' '[:lower:]' | tr ' ' '-'
+  echo "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '-'
 }
 
 function scaffold_directory(){
@@ -40,11 +40,11 @@ function scaffold_directory(){
 
   mkdir -p "$dir"
 
-  touch $dir/index.html
-  touch $dir/$scr_scratch_file
-  touch $dir/error.log
+  touch "$dir/index.html"
+  touch "$dir/$scr_scratch_file"
+  touch "$dir/error.log"
 
-  echo "Hello World" > $dir/index.html
+  echo "Hello World" > "$dir/index.html"
 }
 
 function scratch_is_duplicate(){
@@ -67,14 +67,14 @@ function new_scratch(){
     scr_uuid=$(random_id)
   fi
 
-  if scratch_is_duplicate $scr_uuid; then
+  if scratch_is_duplicate "$scr_uuid"; then
     echo "Scratch '$scr_uuid' already exists."
     return
   fi
 
-  scaffold_directory $scr_uuid
-  register_hostname $scr_uuid
-  start_scratch $scr_uuid
+  scaffold_directory "$scr_uuid"
+  register_hostname "$scr_uuid"
+  start_scratch "$scr_uuid"
 
   echo "Created scratch '$scr_uuid'."
 }
@@ -83,7 +83,7 @@ function get_open_port() {
   local low_bount=49152
   local range=16384
   while true; do
-    local port=$[$low_bount + ($RANDOM % $range)]
+    local port=$((low_bount + (RANDOM % range)))
     (echo "" >/dev/tcp/127.0.0.1/${port}) >/dev/null 2>&1
     if [ $? -ne 0 ]; then
       echo $port
@@ -94,33 +94,38 @@ function get_open_port() {
 
 function start_scratch(){
   local scr_uuid=$1
-  local pid=$(get_scratch_pid $scr_uuid)
-  local dir=$scr_dir/$scr_uuid
+  local pid=$(get_scratch_pid "$scr_uuid")
+  local dir="$scr_dir/$scr_uuid"
   local open_port=$(get_open_port)
   local tmp_file=$(mktemp)
+
+  echo "Starting scratch '$scr_uuid' on port $open_port..."
 
   if [ -z "$pid" ]; then
     local address="$scr_uuid.$scr_hostname:$open_port"
     php -q \
       -d error_reporting=E_ALL \
-      -d error_log=$dir/error.log \
-      -d access.log=$dir/access.log \
-      -S $address \
-      -t $dir > $tmp_file 2>&1 &
+      -d error_log="$dir/error.log" \
+      -d access.log="$dir/access.log" \
+      -S "$address" \
+      -t "$dir" > "$tmp_file" 2>&1 &
   fi
 }
 
 function stop_scratch(){
   local pid=$(get_scratch_pid $1)
 
-  if [ ! -z "$pid" ]; then
+  if [ -n "$pid" ]; then
     sudo_exec "kill $pid"
+    echo "Stopped scratch '$1'."
+  else
+    echo "Scratch '$1' is not running."
   fi
 }
 
 function edit_scratch(){
   local scr_uuid=$1
-  code $scr_dir/$scr_uuid
+  code "$scr_dir/$scr_uuid"
 }
 
 function remove_scratch(){
@@ -143,7 +148,7 @@ function start_all_scratches(){
   local scratches=$(get_all_scratches)
   for scr_uuid in $scratches; do
     start_scratch $scr_uuid
-    n=$[$n+1]
+    n=$(($n+1))
   done
   echo "Started $n scratches."
 }
@@ -184,7 +189,7 @@ function get_all_scratches(){
     fi
     scratches+=($(basename $dir))
   done
-  echo "${scratches[@]}"
+  echo ${scratches[@]}
 }
 
 function list_all_scratches(){
@@ -223,21 +228,25 @@ function start_ngrok_tunnel(){
   scr_uuid=$1
   local scratches=$(get_all_scratches)
   for id in $scratches; do
-    if [ ! -z "$scr_uuid" ] && [ "$scr_uuid" != "$id" ]; then
+    if [ -n "$scr_uuid" ] && [ "$scr_uuid" != "$id" ]; then
       continue
     fi
 
     local url=$(get_scratch_address $scr_uuid)
     local port=$(echo $url | cut -d':' -f3)
-    local host=$(echo $url | cut -d':' -f2 | cut -d'/' -f3)
-
-    ngrok http $host:$port
   done
+
+  if [ -z "$port" ]; then
+    echo "Scratch '$scr_uuid' is not running."
+    return
+  fi
+
+  ngrok http $host:$port
 }
 
 if [ "$1" = "tunnel" ]; then
-  if [ $(is_installed "ngrok") -eq 1 ]; then
-    start_ngrok_tunnel $2
+  if [ "$(is_installed "ngrok")" -eq 1 ]; then
+    start_ngrok_tunnel "$2"
   else
     echo "ngrok is not installed"
   fi
@@ -246,20 +255,20 @@ elif [ "$1" = "new" ]; then
 elif [ "$1" = "ls" ]; then
   list_all_scratches
 elif [ "$1" = "edit" ]; then
-  edit_scratch $2
+  edit_scratch "$2"
 elif [ "$1" = "rm" ]; then
-  remove_scratch $2
+  remove_scratch "$2"
 elif [ "$1" = "start" ]; then
   if [ -z "$2" ]; then
     start_all_scratches
   else
-    start_scratch $2
+    start_scratch "$2"
   fi
 elif [ "$1" = "stop" ]; then
   if [ -z "$2" ]; then
     stop_all_scratches
   else
-    stop_scratch $2
+    stop_scratch "$2"
   fi
 else
   echo "scratches.sh"
