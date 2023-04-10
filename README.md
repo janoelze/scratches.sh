@@ -1,7 +1,4 @@
 <p align="center">
-![Group 5]()
-</p>
-<p align="center">
   <img src="http://some_place.com/image.png](https://user-images.githubusercontent.com/893542/231003568-74e9f13e-7cb8-4f57-9700-bba548df3d25.png" />
 </p>
 
