@@ -8,7 +8,7 @@
 
 *__get in loser, we're ditching docker!__*
 
-_Scratches_ is a place for your web experiments. It manages a simple directory of experiments – called scratches – and serves them locally through PHP's builtin server – giving you a URL like hello-world.sketch:8080. In short: Just type "scratch new" in your terminal, give your scratch a name and _scratches_ will provide you with directory where you can tinker just like you would on an Apache server.
+_Scratches_ is a place for your web experiments. Think of it as a local version of codepen.io or JSFiddle.It manages a simple directory of experiments – called scratches – and serves them locally through PHP's builtin server – giving you a URL like hello-world.sketch:8080. In short: Just type "scratch new" in your terminal, give your scratch a name and _scratches_ will provide you with directory where you can tinker just like you would on an Apache server.
 
 ## Dependencies
 
