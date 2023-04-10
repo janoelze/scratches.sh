@@ -43,7 +43,7 @@ Stopped 2 scratches.
 ```
 
 ```
-$ scratches start # stops all sketches
+$ scratches start # starts all sketches
 Started 2 scratches.
 ```
 
