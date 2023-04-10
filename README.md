@@ -24,8 +24,8 @@ Created scratch 'hello-world'.
 
 ```
 $ scratches ls # lists all scratches
-RUNNING	68500	audio-visualizer	http://audio-visualizer.scratch:63928
-RUNNING	13316	hello-world	      http://hello-world.scratch:56233
+RUNNING	68500	audio-visualizer  http://audio-visualizer.scratch:63928
+RUNNING	13316	hello-world       http://hello-world.scratch:56233
 ```
 
 ```
