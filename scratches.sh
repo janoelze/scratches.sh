@@ -99,7 +99,7 @@ function start_scratch(){
   local open_port=$(get_open_port)
   local tmp_file=$(mktemp)
 
-  echo "Starting scratch '$scr_uuid' on port $open_port..."
+  echo "Starting scratch '$scr_uuid' on port $open_port"
 
   if [ -z "$pid" ]; then
     local address="$scr_uuid.$scr_hostname:$open_port"
@@ -183,8 +183,8 @@ function get_scratch_pid(){
 
 function get_all_scratches(){
   local scratches=()
-  for dir in $scr_dir/*; do
-    if [ ! -f $dir/$scr_scratch_file ]; then
+  for dir in "$scr_dir"/*; do
+    if [ ! -f "$dir/$scr_scratch_file" ]; then
       continue
     fi
     scratches+=($(basename $dir))
@@ -203,7 +203,7 @@ function list_all_scratches(){
     else
       echo "RUNNING\t$pid\t$scr_uuid\t$url"
     fi
-    n=$[$n+1]
+    n=$((n+1))
   done
   if [ $n -eq 0 ]; then
     echo "No scratches found."
@@ -219,13 +219,13 @@ function is_installed(){
 }
 
 function ensure_scratches_dir(){
-  if [ ! -d $scr_dir ]; then
-    mkdir $scr_dir
+  if [ ! -d "$scr_dir" ]; then
+    mkdir "$scr_dir"
   fi
 }
 
 function start_ngrok_tunnel(){
-  scr_uuid=$1
+  local scr_uuid=$1
   local scratches=$(get_all_scratches)
   for id in $scratches; do
     if [ -n "$scr_uuid" ] && [ "$scr_uuid" != "$id" ]; then
@@ -241,7 +241,7 @@ function start_ngrok_tunnel(){
     return
   fi
 
-  ngrok http $host:$port
+  ngrok http "$host:$port"
 }
 
 if [ "$1" = "tunnel" ]; then
