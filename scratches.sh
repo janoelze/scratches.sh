@@ -241,20 +241,14 @@ function is_installed(){
   fi
 }
 
-function ensure_scratches_dir(){
-  if [ ! -d "$scr_dir" ]; then
-    mkdir "$scr_dir"
-  fi
-}
-
 function start_ngrok_tunnel(){
   local scr_uuid=$1
   local scratches=$(get_all_scratches)
+
   for id in $scratches; do
     if [ -n "$scr_uuid" ] && [ "$scr_uuid" != "$id" ]; then
       continue
     fi
-
     local url=$(get_scratch_address $scr_uuid)
     local port=$(echo $url | cut -d':' -f3)
   done

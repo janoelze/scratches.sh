@@ -57,24 +57,32 @@ Created scratch 'hello-world'.
 __List all scratches__
 ```
 $ scratches ls
-RUNNING	68500	audio-visualizer  http://audio-visualizer.scratch:63928
-RUNNING	13316	hello-world       http://hello-world.scratch:56233
+RUNNING	68500	my-first-scratch    http://my-first-scratch.scratch:63928
+STOPPED	24560	twitter-feed-test   http://twitter-feed-test.scratch:26153
+RUNNING	13316	hello-world         http://hello-world.scratch:56233
 ```
 
 __Open a scratch in your default browser__
 ```
-$ scratches open "hello-world"
+$ scratches open hello-world
 ```
 
 __Open a scratch in Visual Studio Code__
 ```
-$ scratches edit "hello-world"
+$ scratches edit hello-world
 ```
 
 __Delete a scratch__
 ```
-$ scratches rm "hello world"
-Created scratch 'hello-world'.
+~ $ scratches rm hello-world
+Stopped scratch 'hello-world'.
+Removed scratch 'hello-world'.
+```
+
+__Start all scratches__
+```
+$ scratches start
+Started 2 scratches.
 ```
 
 __Shut down all scratches__
@@ -83,12 +91,7 @@ $ scratches stop
 Stopped 2 scratches.
 ```
 
-__Start all scratches__
-```
-$ scratches start
-Started 2 scratches.
-```
-__Open an ngrok tunnel to your scratch (requires ngrok to be installed)__
+__Open a public ngrok tunnel to your scratch (requires ngrok to be installed)__
 ```
 $ scratches tunnel "hello-world"
 ```
