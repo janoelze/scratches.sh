@@ -6,7 +6,9 @@
 
 # scratches
 
-get in loser, we're ditching docker! _scratches_ is a place for your php, html, js, css experiments. it manages a simple directory of experiments – called scratches – and serves them locally via php's builtin server. in short: type "scratch new" in your terminal, give your scratch a name and you'll get a directory where you can tinker with PHP, html and all sorts of static files.
+*__get in loser, we're ditching docker!__*
+
+_scratches_ is a place for your php, html, js, css experiments. it manages a simple directory of experiments – called scratches – and serves them locally via php's builtin server. in short: type "scratch new" in your terminal, give your scratch a name and you'll get a directory where you can tinker with PHP, html and all sorts of static files.
 
 ## Dependencies
 
