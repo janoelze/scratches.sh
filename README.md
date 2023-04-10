@@ -16,37 +16,43 @@ alias scratches="sh {locationToRepo}/scratches.sh"
 
 ## Usage
 
+__Create a new sketch__
 ```
-$ scratches new # creates a new sketch
+$ scratches new
 Enter a name for the scratch (optional): hello world
 Created scratch 'hello-world'.
 ```
 
+__List all sketches__
 ```
-$ scratches ls # lists all scratches
+$ scratches ls
 RUNNING	68500	audio-visualizer  http://audio-visualizer.scratch:63928
 RUNNING	13316	hello-world       http://hello-world.scratch:56233
 ```
 
+__Open a sketch in Visual Studio Code__
 ```
-$ scratches edit "hello-world" # opens the sketch in visual studio code
+$ scratches edit "hello-world"
 ```
 
+__Delete a sketch__
 ```
-$ scratches rm "hello world" # deletes the sketch
+$ scratches rm "hello world"
 Created scratch 'hello-world'.
 ```
 
+__Shut down all sketches__
 ```
-$ scratches stop # stops all sketches
+$ scratches stop
 Stopped 2 scratches.
 ```
 
+__Start all sketches__
 ```
-$ scratches start # starts all sketches
+$ scratches start
 Started 2 scratches.
 ```
-
+__Open an ngrok tunnel to your scratch (requires ngrok to be installed)__
 ```
-$ scratches tunnel "hello-world" # opens a ngrok tunnel to your scratch (requires ngrok to be installed)
+$ scratches tunnel "hello-world"
 ```
