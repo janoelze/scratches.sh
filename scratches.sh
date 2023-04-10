@@ -6,7 +6,7 @@ scr_user=$(ls -ld $HOME | awk '{print $3}')
 
 function sudo_exec(){
   local cmd=$1
-  sudo -- sh -c -e $cmd
+  sudo -- sh -c -e "$cmd"
 }
 
 function register_hostname(){
@@ -92,6 +92,7 @@ function start_scratch(){
   local pid=$(get_scratch_pid $scr_uuid)
   local dir=$scr_dir/$scr_uuid
   local open_port=$(get_open_port)
+  local tmp_file=$(mktemp)
 
   if [ -z "$pid" ]; then
     local address="$scr_uuid.$scr_hostname:$open_port"
@@ -100,7 +101,7 @@ function start_scratch(){
       -d error_log=$dir/error.log \
       -d access.log=$dir/access.log \
       -S $address \
-      -t $dir > $dir/server.log 2>&1 &
+      -t $dir > $tmp_file 2>&1 &
   fi
 }
 
@@ -108,7 +109,7 @@ function stop_scratch(){
   local pid=$(get_scratch_pid $1)
 
   if [ ! -z "$pid" ]; then
-    kill $pid
+    sudo_exec "kill $pid"
   fi
 }
 
@@ -142,17 +143,15 @@ function start_all_scratches(){
   echo "Started $n scratches."
 }
 
-function stop_all_scratches(){
+function stop_all_scratches() {
   local n=0
-  ps aux | grep 'php' | while read line; do
-    pid=$(echo $line | awk '{print $2}')
-    if [[ $line == *$scr_dir* ]]; then
-      kill $pid
-      n=$[$n+1]
-    fi
+  for pid in $(pgrep -f "$scr_dir"); do
+    sudo_exec "kill $pid"
+    n=$((n+1))
   done
   echo "Stopped $n scratches."
 }
+
 
 function get_scratch_address(){
   scr_uuid=$1
@@ -259,7 +258,6 @@ elif [ "$1" = "stop" ]; then
   fi
 else
   echo "scratches.sh"
-  echo "  install - install scratches.sh"
   echo "  new - create a new scratch"
   echo "  list - list all scratches"
   echo "  start - start all scratches"
