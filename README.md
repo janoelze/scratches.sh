@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="200" src="https://i.imgur.com/2OfUtfs.png" />
+  <img width="200" src="https://i.imgur.com/wPatf2t.png" />
 </p>
 
 # scratches
