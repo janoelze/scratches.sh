@@ -8,7 +8,7 @@
 
 *__get in loser, we're ditching docker!__*
 
-`scratches.sh` is a place for your web experiments. Think of it as a local version of codepen.io or JSFiddle or a pure CLI MAMP. It manages a simple directory of experiments (called scratches), registers hostnamese in your /etc/hosts file and serves them locally through PHP's builtin server, resulting in an URL like hello-world.sketch:8080. In short: Just type `scratch new` in your terminal, give your scratch a name and `scratches.sh` will provide you with a directory where you can tinker just like you would on an Apache server.
+`scratches.sh` is a place for your web experiments. Think of it as a local version of codepen.io/JSFiddle or a pure CLI MAMP. It manages a simple directory of experiments (called scratches), registers hostnamese in your /etc/hosts file and serves them locally through PHP's builtin server, resulting in an URL like hello-world.sketch:8080. In short: Just type `scratch new` in your terminal, give your scratch a name and `scratches.sh` will provide you with a directory where you can tinker just like you would on an Apache server.
 
 __Why use `scratches.sh`?__
 * Build web experiments using the tools and IDE you know and trust, instead of a weird in-browser editor that tries to upsell you.
