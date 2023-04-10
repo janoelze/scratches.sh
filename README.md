@@ -74,7 +74,7 @@ $ scratches edit hello-world
 
 __Delete a scratch__
 ```
-~ $ scratches rm hello-world
+$ scratches rm hello-world
 Stopped scratch 'hello-world'.
 Removed scratch 'hello-world'.
 ```
