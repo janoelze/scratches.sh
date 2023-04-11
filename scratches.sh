@@ -172,11 +172,10 @@ function remove_scratch(){
   local scr_uuid=$1
   local dir=$SCRATCHES_DIRECTORY/$scr_uuid
   local pid=$(get_scratch_pid $scr_uuid)
-  local deleted=0
 
   if [ -n "$pid" ]; then
     echo "Stopping scratch"
-    stop_scratch -s $scr_uuid
+    stop_scratch $scr_uuid
   fi
 
   if [ -d "$dir" ]; then
