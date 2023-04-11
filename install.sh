@@ -36,7 +36,6 @@ function install_scratches(){
   else
     # Create the directory and its subdirectories
     mkdir -p "$TARGET_DIR"
-    mkdir -p "$TARGET_DIR/src/"
     mkdir -p "$TARGET_DIR/env/"
     # Set the install type to "install"
     INSTALL_TYPE="install"
@@ -44,10 +43,9 @@ function install_scratches(){
 
   # Download the ZIP file and extract its contents to the target directory
   curl -q -L "$ARCHIVE_URL" -o repo.zip > /dev/null 2>&1
-  unzip -q repo.zip -d "$TARGET_DIR/"
+  unzip -q repo.zip -d "$TARGET_DIR"
   mv "$TARGET_DIR/$UNZIPPED_ARCHIVE_NAME/" "$TARGET_DIR/src/"
 
-  # Clean up by deleting the ZIP file
   rm repo.zip
 
   # Add the alias to the user's shell configuration file
