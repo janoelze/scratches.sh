@@ -34,18 +34,18 @@ function slugify() {
   echo "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '-'
 }
 
-function scaffold_directory(){
-  local scr_uuid=$1
-  local dir="$scr_dir/$scr_uuid"
+# function scaffold_directory(){
+#   local scr_uuid=$1
+#   local dir="$scr_dir/$scr_uuid"
 
-  mkdir -p "$dir"
+#   mkdir -p "$dir"
 
-  touch "$dir/index.html"
-  touch "$dir/$scr_scratch_file"
-  touch "$dir/error.log"
+#   touch "$dir/index.html"
+#   touch "$dir/$scr_scratch_file"
+#   touch "$dir/error.log"
 
-  echo "Hello World" > "$dir/index.html"
-}
+#   echo "Hello World" > "$dir/index.html"
+# }
 
 function scratch_is_duplicate(){
   local scr_uuid=$1
@@ -57,6 +57,17 @@ function scratch_is_duplicate(){
   fi
 
   return 1
+}
+
+function create_assets() {
+  local scr_uuid=$1
+  local dir="$scr_dir/$scr_uuid"
+
+  touch "$dir/index.js"
+  touch "$dir/index.css"
+
+  echo "function main(){\n\tconsole.log('Hello World')\n}" > "$dir/index.js"
+  echo "body { background-color: #000; color: #fff; }" > "$dir/index.css"
 }
 
 function new_scratch(){
@@ -72,7 +83,28 @@ function new_scratch(){
     return
   fi
 
-  scaffold_directory "$scr_uuid"
+  local dir="$scr_dir/$scr_uuid"
+
+  read -p "Want me to set up simple JS and CSS files? (y/n): " create_assets
+
+  if [ "$create_assets" == "y" ]; then
+    cp -r "$HOME/src/gh-scratches//blueprints/simple" "$dir"
+  else
+    cp -r "$HOME/src/gh-scratches//blueprints/raw" "$dir"
+  fi
+
+  touch "$dir/error.log"
+
+  local escaped_dir=$(echo "$dir" | sed 's/\//\\\//g')
+  sed -i '' "s/%DIRECTORY%/$escaped_dir/g" "$dir/index.php"
+  sed -i '' "s/%TITLE%/$scr_uuid/g" "$dir/index.php"
+
+  # sed -i '' "s/%DIRECTORY%/$dir/g" "$dir/index.php"
+
+  # ask the user if they want the directory to have a blueprint setup via a y/n prompt
+
+  # scaffold_directory "$scr_uuid"
+
   register_hostname "$scr_uuid"
   start_scratch "$scr_uuid"
 
