@@ -34,7 +34,6 @@ $ scratches
 scratches.sh
   new - creates a new scratch
   ls - lists all scratches
-  jsonls - lists all scratches as json
   open - opens a scratch in your default browser
   start - starts all scratches
   stop - stops all scratches
