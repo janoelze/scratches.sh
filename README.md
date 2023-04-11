@@ -24,7 +24,7 @@ __Why use `scratches.sh`?__
 ## Installation
 
 ```
-$ curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | sh
 ```
 
 ## Commands
