@@ -28,16 +28,21 @@ function sudo_exec(){
   sudo -- sh -c -e "$cmd"
 }
 
+function hostname_is_registered(){
+  local scr_uuid=$1
+  local domain="$scr_uuid.$SCRATCHES_HOST_NAME"
+
+  if grep -q "$domain" /etc/hosts; then
+    return 0
+  fi
+
+  return 1
+}
+
 function register_hostname(){
   local scr_uuid=$1
   local host="127.0.0.1"
   local domain="$scr_uuid.$SCRATCHES_HOST_NAME"
-
-  # Check if host is already registered"
-  if grep -q "$domain" /etc/hosts; then
-    return
-  fi
-
   sudo_exec "echo $host $domain >> /etc/hosts"
 }
 
@@ -51,25 +56,24 @@ function slugify() {
 
 function scratch_is_duplicate(){
   local scr_uuid=$1
-  local dir="$SCRATCHES_DIRECTORY/$scr_uuid"
 
-  if [ -d "$dir" ]; then
+  if [ -d "$SCRATCHES_DIRECTORY/$scr_uuid" ]; then
     return 0
   fi
 
   return 1
 }
 
-function create_assets() {
-  local scr_uuid=$1
-  local dir="$SCRATCHES_DIRECTORY/$scr_uuid"
+# function create_assets() {
+#   local scr_uuid=$1
+#   local dir="$SCRATCHES_DIRECTORY/$scr_uuid"
 
-  touch "$dir/index.js"
-  touch "$dir/index.css"
+#   touch "$dir/index.js"
+#   touch "$dir/index.css"
 
-  echo "function main(){\n\tconsole.log('Hello World')\n}" > "$dir/index.js"
-  echo "body { background-color: #000; color: #fff; }" > "$dir/index.css"
-}
+#   echo "function main(){\n\tconsole.log('Hello World')\n}" > "$dir/index.js"
+#   echo "body { background-color: #000; color: #fff; }" > "$dir/index.css"
+# }
 
 function new_scratch(){
   read -p "Enter a name for the scratch (optional): " scr_name
@@ -89,10 +93,12 @@ function new_scratch(){
   read -p "Want me to set up simple JS and CSS files? (y/n): " create_assets
 
   # copy blueprint files to target directory
+  # TODO add support for other blueprints
+  # TODO this is not working for other users
   if [ "$create_assets" == "y" ]; then
-    cp -r "$HOME/src/gh-scratches//blueprints/simple" "$dir"
+    cp -r "$HOME/src/gh-scratches/blueprints/simple" "$dir"
   else
-    cp -r "$HOME/src/gh-scratches//blueprints/raw" "$dir"
+    cp -r "$HOME/src/gh-scratches/blueprints/raw" "$dir"
   fi
 
   # create log files
@@ -103,7 +109,9 @@ function new_scratch(){
   sed -i '' "s/%DIRECTORY%/$escaped_dir/g" "$dir/index.php"
   sed -i '' "s/%TITLE%/$scr_uuid/g" "$dir/index.php"
 
-  register_hostname "$scr_uuid"
+  if ! hostname_is_registered "$scr_uuid"; then
+    register_hostname "$scr_uuid"
+  fi
 
   if [ "$SCRATCHES_AUTOSTART" == "1" ]; then
     start_scratch "$scr_uuid"
@@ -152,9 +160,6 @@ function stop_scratch(){
 
   if [ -n "$pid" ]; then
     sudo_exec "kill $pid"
-    echo "Stopped scratch '$1'"
-  else
-    echo "Scratch '$1' is not running"
   fi
 }
 
@@ -167,20 +172,22 @@ function remove_scratch(){
   local scr_uuid=$1
   local dir=$SCRATCHES_DIRECTORY/$scr_uuid
   local pid=$(get_scratch_pid $scr_uuid)
+  local deleted=0
 
   if [ -n "$pid" ]; then
-    echo "Stopping scratch '$scr_uuid'"
-    stop_scratch $scr_uuid
+    echo "Stopping scratch"
+    stop_scratch -s $scr_uuid
   fi
 
-  if [ ! -d "$dir" ]; then
-    echo "Scratch '$scr_uuid' does not exist"
-    return
+  if [ -d "$dir" ]; then
+    echo "Removing scratch directory"
+    rm -rf "$dir"
   fi
 
-  unregister_hostname $scr_uuid
-  rm -rf "$dir"
-  echo "Removed scratch '$scr_uuid'"
+  if hostname_is_registered $scr_uuid; then
+    echo "Removing hostname from /etc/hosts"
+    unregister_hostname $scr_uuid
+  fi
 }
 
 function start_all_scratches(){
@@ -201,7 +208,6 @@ function stop_all_scratches() {
   done
   echo "Stopped $n scratches"
 }
-
 
 function get_scratch_address(){
   scr_uuid=$1
