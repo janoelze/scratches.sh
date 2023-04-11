@@ -52,8 +52,11 @@ Created scratch 'hello-world'
 __List all scratches__
 ```
 $ scratches ls
-1   running   59765   hello-world         http://hello-world.scratch:54560
-2   running   61123   mastodon-api-test   http://mastodon-api-test.scratch:64557
+2   running   24031   facebook-api        http://facebook-api.scratch:52093
+3   running   24291   foursquare-api      http://foursquare-api.scratch:60262
+4   stopped   n/a     hello-world         n/a
+5   running   61123   mastodon-api        http://mastodon-api.scratch:64557
+6   stopped   n/a     twitter-api         n/a
 ```
 
 __Open a scratch in your default browser__
