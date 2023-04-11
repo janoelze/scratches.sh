@@ -237,15 +237,23 @@ function get_all_scratches(){
 }
 
 function list_all_scratches(){
+  _jq() {
+    echo ${scratch} | base64 --decode | jq -r ${1}
+  }
+
+  _pad(){
+    printf "%-$1s" "$2"
+  }
+
   local all_scratches=$(list_all_scratches_json)
   local n=0
   local longest_id=0
 
   for scratch in $(echo "$all_scratches" | jq -r '.[] | @base64'); do
-    _jq() {
-      echo ${scratch} | base64 --decode | jq -r ${1}
-    }
+    n=$((n+1))
+  done
 
+  for scratch in $(echo "$all_scratches" | jq -r '.[] | @base64'); do
     local id=$(_jq '.id')
     local id_length=${#id}
 
@@ -255,14 +263,6 @@ function list_all_scratches(){
   done
 
   for scratch in $(echo "$all_scratches" | jq -r '.[] | @base64'); do
-    _jq() {
-      echo ${scratch} | base64 --decode | jq -r ${1}
-    }
-
-    _pad(){
-      printf "%-$1s" "$2"
-    }
-
     n=$((n+1))
 
     local line=""
@@ -345,6 +345,12 @@ function get_scratch_dir(){
 
 function list_all_scratches_json(){
   local scratches=$(get_all_scratches)
+
+  if [ -z "$scratches" ]; then
+    echo "[]"
+    return
+  fi
+
   local json="["
   for scr_uuid in $scratches; do
     local pid=$(get_scratch_pid $scr_uuid)
