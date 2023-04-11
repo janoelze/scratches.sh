@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 
-SCRIPT_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
+# find real path to current script entry point
+SCRATCHES_SRC_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
+SCRATCHES_SRC_PARENT_PATH="$(dirname "$SCRATCHES_SRC_PATH")"
+
+if [[ "$SCRATCHES_SRC_PARENT_PATH" == "." ]]; then
+  SCRATCHES_SRC_PARENT_PATH=$(realpath "$path")
+fi
 
 # Config defaults
-SCRATCHES_DIRECTORY="$SCRIPT_PATH/../env" # e.g. /Users/xyz/scratches
+SCRATCHES_HOME="$SCRATCHES_SRC_PARENT_PATH"
+SCRATCHES_DIRECTORY="$SCRATCHES_SRC_PARENT_PATH/env" # e.g. /Users/xyz/scratches
 SCRATCHES_HOST_NAME="scratch" # e.g. http://xyz.scratch
 SCRATCHES_AUTOSTART=1 # start scratch after creation
 SCRATCHES_AUTOOPEN=1 # open scratch in browser after creation
@@ -17,7 +24,7 @@ function sudo_exec(){
 }
 
 function update_scratches(){
-  sh $PWD/install.sh
+  sh $SCRIPT_PATH/install.sh
 }
 
 function is_installed(){
@@ -97,7 +104,7 @@ function new_scratch(){
   fi
 
   local SCRATCH_DIR="$SCRATCHES_DIRECTORY/$scr_uuid"
-  local BLUEPRINT_DIR="$PWD/blueprints/default"
+  local BLUEPRINT_DIR="$SCRATCHES_SRC_PATH/blueprints/default"
 
   # create directory
   cp -r "$BLUEPRINT_DIR" "$SCRATCH_DIR"
