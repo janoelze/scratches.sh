@@ -27,6 +27,40 @@ function sudo_exec(){
   sudo -- sh -c -e "$cmd"
 }
 
+# Helpers
+
+function update_scratches(){
+  sh $PWD/install.sh
+}
+
+function is_installed(){
+  # Check if the command in $1 is installed
+  if ! which $1 > /dev/null; then
+    echo "0"
+  else
+    echo "1"
+  fi
+}
+
+function slugify() {
+  echo "$@" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-zA-Z0-9]+/-/g' | sed -E 's/(^-+)|(-+$)//g'
+}
+
+function get_open_port() {
+  local low_bount=49152
+  local range=16384
+  while true; do
+    local port=$((low_bount + (RANDOM % range)))
+    (echo "" >/dev/tcp/127.0.0.1/${port}) >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+      echo $port
+      break
+    fi
+  done
+}
+
+# /etc/hosts management
+
 function hostname_is_registered(){
   local scr_uuid=$1
   local domain="$scr_uuid.$SCRATCHES_HOST_NAME"
@@ -49,9 +83,7 @@ function unregister_hostname(){
   sudo_exec "sed -i '' '/$1/d' /etc/hosts"
 }
 
-function slugify() {
-  echo "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '-'
-}
+# Scratch management
 
 function scratch_is_duplicate(){
   local scr_uuid=$1
@@ -114,19 +146,6 @@ function new_scratch(){
   echo "Created scratch '$scr_uuid'"
 }
 
-function get_open_port() {
-  local low_bount=49152
-  local range=16384
-  while true; do
-    local port=$((low_bount + (RANDOM % range)))
-    (echo "" >/dev/tcp/127.0.0.1/${port}) >/dev/null 2>&1
-    if [ $? -ne 0 ]; then
-      echo $port
-      break
-    fi
-  done
-}
-
 function start_scratch(){
   local scr_uuid=$1
   local pid=$(get_scratch_pid "$scr_uuid")
@@ -139,7 +158,6 @@ function start_scratch(){
     php -q \
       -d error_reporting=E_ALL \
       -d error_log="$dir/error.log" \
-      -d access.log="$dir/access.log" \
       -S "$address" \
       -t "$dir" > "$tmp_file" 2>&1 &
   fi
@@ -179,22 +197,41 @@ function remove_scratch(){
   fi
 }
 
+function scratch_pid_is_running() {
+  local res=$(ps -p $1 | grep "php")
+  # if res is empty, the process is not running
+  if [ -z "$res" ]; then
+    echo "0"
+  else
+    echo "1"
+  fi
+}
+
 function start_all_scratches(){
+  local scratches=$(list_all_scratches_json)
   local n=0
-  local scratches=$(get_all_scratches)
-  for scr_uuid in $scratches; do
-    start_scratch $scr_uuid
-    n=$(($n+1))
+
+  for scratch_id in $(echo "$scratches" | jq -r '.[] | select(.status != "running") | .id'); do
+    start_scratch $scratch_id
+    n=$((n+1))
   done
+
   echo "Started $n scratches"
 }
 
 function stop_all_scratches() {
   local n=0
-  for pid in $(pgrep -f "$SCRATCHES_DIRECTORY"); do
+  local tmp_file=$(mktemp)
+
+  ps aux | grep 'php' | grep -v "grep" > "$tmp_file"
+
+  while read line; do
+    pid=$(echo $line | awk '{print $2}')
     sudo_exec "kill $pid"
     n=$((n+1))
-  done
+  done < "$tmp_file"
+
+  rm "$tmp_file"
   echo "Stopped $n scratches"
 }
 
@@ -237,21 +274,27 @@ function list_all_scratches(){
   }
 
   _pad(){
-    printf "%-$1s" "$2"
+    # pad left
+    local string=$2
+    local length=$1
+    local pad_char=" "
+    echo "$string" | awk -v len=$length -v pad="$pad_char" '{ printf "%-" len "s", $0 }'
   }
 
   local all_scratches=$(list_all_scratches_json)
   local n=0
   local longest_id=0
 
-  for scratch in $(echo "$all_scratches" | jq -r '.[] | @base64'); do
-    local id=$(_jq '.id')
-    local id_length=${#id}
+  for scratch_id in $(echo "$all_scratches" | jq -r '.[] | .id'); do
+    local string_length=$(echo -n "$scratch_id" | wc -m)
+    local string_length=$((string_length))
 
-    if [ $id_length -gt $longest_id ]; then
-      longest_id=$id_length
+    if [ $string_length -gt $longest_id ]; then
+      longest_id=$string_length
     fi
   done
+
+  longest_id=$((longest_id-2))
 
   for scratch in $(echo "$all_scratches" | jq -r '.[] | @base64'); do
     n=$((n+1))
@@ -269,11 +312,11 @@ function list_all_scratches(){
       pid="n/a"
     fi
 
-    line="$(_pad 3 "$n")"
-    line="$line $(_pad 9 "$status")"
-    line="$line $(_pad 7 "$pid")"
-    line="$line $(_pad $((longest_id+2)) "$id")"
-    line="$line $address"
+    line+="$(_pad 3 $n)"
+    line+="$(_pad $longest_id $id)"
+    line+="$(_pad 11 "pid $pid")"
+    line+="$(_pad 9 $status)"
+    line+="$(_pad 30 $address)"
 
     echo "$line"
   done
@@ -304,14 +347,6 @@ function open_scratch(){
   fi
 
   open "http://$scratch_host:$scratch_port"
-}
-
-function is_installed(){
-  if ! which $1 > /dev/null; then
-    echo "0"
-  else
-    echo "1"
-  fi
 }
 
 function start_ngrok_tunnel(){
@@ -376,8 +411,12 @@ if [ "$1" = "tunnel" ]; then
   fi
 elif [ "$1" = "new" ]; then
   new_scratch
+elif [ "$1" = "update" ]; then
+  update_scratches
 elif [ "$1" = "ls" ]; then
   list_all_scratches
+elif [ "$1" = "ps" ]; then
+  list_processes_json
 elif [ "$1" = "jsonls" ]; then
   list_all_scratches_json
 elif [ "$1" = "edit" ]; then
@@ -406,6 +445,7 @@ else
   echo "  new - creates a new scratch"
   echo "  ls - lists all scratches"
   echo "  jsonls - lists all scratches as json"
+  echo "  ps - lists all scratches processes"
   echo "  open - opens a scratch in your default browser"
   echo "  start - starts all scratches"
   echo "  stop - stops all scratches"
