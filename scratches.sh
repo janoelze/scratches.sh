@@ -24,7 +24,6 @@ source "$SCRATCHES_CONFIG_FILE"
 
 function sudo_exec(){
   local cmd=$1
-  # Execute the supplied command as sudo
   sudo -- sh -c -e "$cmd"
 }
 
@@ -64,20 +63,10 @@ function scratch_is_duplicate(){
   return 1
 }
 
-# function create_assets() {
-#   local scr_uuid=$1
-#   local dir="$SCRATCHES_DIRECTORY/$scr_uuid"
-
-#   touch "$dir/index.js"
-#   touch "$dir/index.css"
-
-#   echo "function main(){\n\tconsole.log('Hello World')\n}" > "$dir/index.js"
-#   echo "body { background-color: #000; color: #fff; }" > "$dir/index.css"
-# }
-
 function new_scratch(){
   read -p "Enter a name for the scratch (optional): " scr_name
-  scr_uuid=$(slugify "$scr_name")
+
+  local scr_uuid=$(slugify "$scr_name")
 
   if [ -z "$scr_uuid" ]; then
     scr_uuid=$(uuidgen | cut -d'-' -f1)
@@ -88,26 +77,27 @@ function new_scratch(){
     return
   fi
 
-  local dir="$SCRATCHES_DIRECTORY/$scr_uuid"
+  local SCRATCH_DIR="$SCRATCHES_DIRECTORY/$scr_uuid"
+  local BLUEPRINT_DIR="$PWD/blueprints/default"
 
-  read -p "Want me to set up simple JS and CSS files? (y/n): " create_assets
+  # create directory
+  cp -r "$BLUEPRINT_DIR" "$SCRATCH_DIR"
 
-  # copy blueprint files to target directory
-  # TODO add support for other blueprints
-  # TODO this is not working for other users
-  if [ "$create_assets" == "y" ]; then
-    cp -r "$HOME/src/gh-scratches/blueprints/simple" "$dir"
-  else
-    cp -r "$HOME/src/gh-scratches/blueprints/raw" "$dir"
-  fi
-
-  # create log files
-  touch "$dir/error.log"
+  # rename files
+  mv "$SCRATCH_DIR/default.js" "$SCRATCH_DIR/$scr_uuid.js"
+  mv "$SCRATCH_DIR/default.css" "$SCRATCH_DIR/$scr_uuid.css"
 
   # replace placeholders
-  local escaped_dir=$(echo "$dir" | sed 's/\//\\\//g')
-  sed -i '' "s/%DIRECTORY%/$escaped_dir/g" "$dir/index.php"
-  sed -i '' "s/%TITLE%/$scr_uuid/g" "$dir/index.php"
+  sed -i '' "s/default.css/$scr_uuid.css/g" "$SCRATCH_DIR/index.php"
+  sed -i '' "s/default.js/$scr_uuid.js/g" "$SCRATCH_DIR/index.php"
+
+  # create log files
+  touch "$SCRATCH_DIR/error.log"
+
+  # replace placeholders
+  local escaped_dir=$(echo "$SCRATCH_DIR" | sed 's/\//\\\//g')
+  sed -i '' "s/%DIRECTORY%/$escaped_dir/g" "$SCRATCH_DIR/index.php"
+  sed -i '' "s/%TITLE%/$scr_uuid/g" "$SCRATCH_DIR/index.php"
 
   if ! hostname_is_registered "$scr_uuid"; then
     register_hostname "$scr_uuid"
