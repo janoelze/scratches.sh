@@ -22,13 +22,7 @@ __Why use `scratches.sh`?__
 ## Installation
 
 ```
-$ git clone git@github.com:janoelze/scratches.sh.git
-```
-
-After cloning the repository you can add an alias to your .bashrc or .zshrc:
-
-```
-alias scratches="sh {locationToRepo}/scratches.sh"
+$ curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | sh
 ```
 
 ## Commands
