@@ -444,8 +444,6 @@ else
   echo "scratches.sh"
   echo "  new - creates a new scratch"
   echo "  ls - lists all scratches"
-  echo "  jsonls - lists all scratches as json"
-  echo "  ps - lists all scratches processes"
   echo "  open - opens a scratch in your default browser"
   echo "  start - starts all scratches"
   echo "  stop - stops all scratches"
