@@ -17,7 +17,7 @@ __Why use `scratches.sh`?__
 
 ## Dependencies
 
-* [PJP](https://github.com/php/php-src)
+* [PHP](https://github.com/php/php-src)
 * [jq](https://github.com/stedolan/jq)
 * zsh/bash
 
