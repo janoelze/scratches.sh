@@ -23,10 +23,10 @@ function install_scratches(){
   local ARCHIVE_URL="https://github.com/$SCRATCHES_REPOSITORY/archive/main.zip"
   local UNZIPPED_ARCHIVE_NAME="scratches.sh-main"
   local INSTALL_TYPE=""
-  local ALIAS="ghscratches"
+  local ALIAS="scratches"
 
   # Define the directory to extract the contents of the ZIP file to
-  local TARGET_DIR="$HOME/scratches-live"
+  local TARGET_DIR="$HOME/scratches"
 
   if [ -d "$TARGET_DIR" ]; then
     # Remove the existing directory and its contents
