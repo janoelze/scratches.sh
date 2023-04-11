@@ -25,7 +25,7 @@ function install_scratches(){
   local INSTALL_TYPE=""
   local ALIAS="scratches"
 
-  # Define the directory to extract the contents of the ZIP file to
+  # Define the directory to extract the contents of the ZIP file
   local TARGET_DIR="$HOME/scratches"
 
   if [ -d "$TARGET_DIR" ]; then
@@ -37,7 +37,7 @@ function install_scratches(){
     # Create the directory and its subdirectories
     mkdir -p "$TARGET_DIR"
     mkdir -p "$TARGET_DIR/src/"
-    mkdir -p "$TARGET_DIR/projects/"
+    mkdir -p "$TARGET_DIR/env/"
     # Set the install type to "install"
     INSTALL_TYPE="install"
   fi

@@ -1,33 +1,20 @@
 #!/usr/bin/env bash
 
+SCRIPT_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
+
 # Config defaults
-SCRATCHES_CONFIG_FILE="$HOME/.scratches-config" # e.g. /Users/xyz/.scratches-config
-SCRATCHES_DIRECTORY="$HOME/scratches" # e.g. /Users/xyz/scratches
+SCRATCHES_DIRECTORY="$SCRIPT_PATH/../env" # e.g. /Users/xyz/scratches
 SCRATCHES_HOST_NAME="scratch" # e.g. http://xyz.scratch
 SCRATCHES_AUTOSTART=1 # start scratch after creation
 SCRATCHES_AUTOOPEN=1 # open scratch in browser after creation
 SCRATCHES_AUTOEDIT=1 # open scratch in editor after creation
 
-# Check if the config file exists; if not, create it with default values
-if [ ! -f "$SCRATCHES_CONFIG_FILE" ]; then
-  echo "Creating new scratches config file at $SCRATCHES_CONFIG_FILE"
-  echo "SCRATCHES_CONFIG_FILE=\"$SCRATCHES_CONFIG_FILE\"" > "$SCRATCHES_CONFIG_FILE"
-  echo "SCRATCHES_DIRECTORY=\"$SCRATCHES_DIRECTORY\"" >> "$SCRATCHES_CONFIG_FILE"
-  echo "SCRATCHES_HOST_NAME=\"$SCRATCHES_HOST_NAME\"" >> "$SCRATCHES_CONFIG_FILE"
-  echo "SCRATCHES_AUTOSTART=$SCRATCHES_AUTOSTART" >> "$SCRATCHES_CONFIG_FILE"
-  echo "SCRATCHES_AUTOOPEN=$SCRATCHES_AUTOOPEN" >> "$SCRATCHES_CONFIG_FILE"
-  echo "SCRATCHES_AUTOEDIT=$SCRATCHES_AUTOEDIT" >> "$SCRATCHES_CONFIG_FILE"
-fi
-
-# Load the config file
-source "$SCRATCHES_CONFIG_FILE"
+# Helpers
 
 function sudo_exec(){
   local cmd=$1
   sudo -- sh -c -e "$cmd"
 }
-
-# Helpers
 
 function update_scratches(){
   sh $PWD/install.sh
