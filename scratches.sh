@@ -1,21 +1,43 @@
 #!/usr/bin/env bash
 
-scr_dir=$HOME/scratches
-scr_hostname="scratch"
-scr_hosts_file="/etc/hosts"
-scr_scratch_file=".scratch"
+# Config defaults
+SCRATCHES_CONFIG_FILE="$HOME/.scratches-config" # e.g. /Users/xyz/.scratches-config
+SCRATCHES_DIRECTORY="$HOME/scratches" # e.g. /Users/xyz/scratches
+SCRATCHES_HOST_NAME="scratch" # e.g. http://xyz.scratch
+SCRATCHES_AUTOSTART=1 # start scratch after creation
+SCRATCHES_AUTOOPEN=1 # open scratch in browser after creation
+SCRATCHES_AUTOEDIT=1 # open scratch in editor after creation
+
+# Check if the config file exists; if not, create it with default values
+if [ ! -f "$SCRATCHES_CONFIG_FILE" ]; then
+  echo "Creating new scratches config file at $SCRATCHES_CONFIG_FILE"
+  defaults="
+    SCRATCHES_CONFIG_FILE=\"$SCRATCHES_CONFIG_FILE\"
+    SCRATCHES_DIRECTORY=\"$SCRATCHES_DIRECTORY\"
+    SCRATCHES_HOST_NAME=\"$SCRATCHES_HOST_NAME\"
+    SCRATCHES_AUTOSTART=$SCRATCHES_AUTOSTART
+    SCRATCHES_AUTOOPEN=$SCRATCHES_AUTOOPEN
+    SCRATCHES_AUTOEDIT=$SCRATCHES_AUTOEDIT
+  "
+  echo "$defaults" > "$SCRATCHES_CONFIG_FILE"
+fi
+
+# Load the config file
+source "$SCRATCHES_CONFIG_FILE"
 
 function sudo_exec(){
   local cmd=$1
+  # Execute the supplied command as sudo
   sudo -- sh -c -e "$cmd"
 }
 
 function register_hostname(){
   local scr_uuid=$1
   local host="127.0.0.1"
-  local domain="$scr_uuid.$scr_hostname"
+  local domain="$scr_uuid.$SCRATCHES_HOST_NAME"
 
-  if grep -q "$domain" $scr_hosts_file; then
+  # Check if host is already registered"
+  if grep -q "$domain" /etc/hosts; then
     return
   fi
 
@@ -32,7 +54,7 @@ function slugify() {
 
 function scratch_is_duplicate(){
   local scr_uuid=$1
-  local dir="$scr_dir/$scr_uuid"
+  local dir="$SCRATCHES_DIRECTORY/$scr_uuid"
 
   if [ -d "$dir" ]; then
     echo "Scratch '$scr_uuid' already exists"
@@ -44,7 +66,7 @@ function scratch_is_duplicate(){
 
 function create_assets() {
   local scr_uuid=$1
-  local dir="$scr_dir/$scr_uuid"
+  local dir="$SCRATCHES_DIRECTORY/$scr_uuid"
 
   touch "$dir/index.js"
   touch "$dir/index.css"
@@ -66,7 +88,7 @@ function new_scratch(){
     return
   fi
 
-  local dir="$scr_dir/$scr_uuid"
+  local dir="$SCRATCHES_DIRECTORY/$scr_uuid"
 
   read -p "Want me to set up simple JS and CSS files? (y/n): " create_assets
 
@@ -86,7 +108,14 @@ function new_scratch(){
   sed -i '' "s/%TITLE%/$scr_uuid/g" "$dir/index.php"
 
   register_hostname "$scr_uuid"
-  start_scratch "$scr_uuid"
+
+  if [ "$SCRATCHES_AUTOSTART" == "1" ]; then
+    start_scratch "$scr_uuid"
+  fi
+
+  if [ "$SCRATCHES_AUTOOPEN" == "1" ]; then
+    open_scratch "$scr_uuid"
+  fi
 
   echo "Created scratch '$scr_uuid'"
 }
@@ -107,12 +136,12 @@ function get_open_port() {
 function start_scratch(){
   local scr_uuid=$1
   local pid=$(get_scratch_pid "$scr_uuid")
-  local dir="$scr_dir/$scr_uuid"
+  local dir="$SCRATCHES_DIRECTORY/$scr_uuid"
   local open_port=$(get_open_port)
   local tmp_file=$(mktemp)
 
   if [ -z "$pid" ]; then
-    local address="$scr_uuid.$scr_hostname:$open_port"
+    local address="$scr_uuid.$SCRATCHES_HOST_NAME:$open_port"
     php -q \
       -d error_reporting=E_ALL \
       -d error_log="$dir/error.log" \
@@ -135,21 +164,21 @@ function stop_scratch(){
 
 function edit_scratch(){
   local scr_uuid=$1
-  code "$scr_dir/$scr_uuid"
+  code "$SCRATCHES_DIRECTORY/$scr_uuid"
 }
 
 function remove_scratch(){
   local scr_uuid=$1
-  local scr_dir=$scr_dir/$scr_uuid
+  local SCRATCHES_DIRECTORY=$SCRATCHES_DIRECTORY/$scr_uuid
 
-  if [ ! -d "$scr_dir" ]; then
+  if [ ! -d "$SCRATCHES_DIRECTORY" ]; then
     echo "Scratch '$scr_uuid' does not exist"
     return
   fi
 
   unregister_hostname $scr_uuid
   stop_scratch $scr_uuid
-  rm -rf "$scr_dir/$scr_uuid"
+  rm -rf "$SCRATCHES_DIRECTORY/$scr_uuid"
   echo "Removed scratch '$scr_uuid'"
 }
 
@@ -165,7 +194,7 @@ function start_all_scratches(){
 
 function stop_all_scratches() {
   local n=0
-  for pid in $(pgrep -f "$scr_dir"); do
+  for pid in $(pgrep -f "$SCRATCHES_DIRECTORY"); do
     sudo_exec "kill $pid"
     n=$((n+1))
   done
@@ -198,7 +227,7 @@ function get_scratch_pid(){
 
 function get_all_scratches(){
   local scratches=()
-  for dir in "$scr_dir"/*; do
+  for dir in "$SCRATCHES_DIRECTORY"/*; do
     if [ -f "$dir/index.php" ] || [ -f "$dir/index.html" ]; then
       scratches+=($(basename $dir))
     fi
