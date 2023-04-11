@@ -26,26 +26,9 @@ function unregister_hostname(){
   sudo_exec "sed -i '' '/$1/d' /etc/hosts"
 }
 
-function random_id(){
-  uuidgen | cut -d'-' -f1
-}
-
 function slugify() {
   echo "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '-'
 }
-
-# function scaffold_directory(){
-#   local scr_uuid=$1
-#   local dir="$scr_dir/$scr_uuid"
-
-#   mkdir -p "$dir"
-
-#   touch "$dir/index.html"
-#   touch "$dir/$scr_scratch_file"
-#   touch "$dir/error.log"
-
-#   echo "Hello World" > "$dir/index.html"
-# }
 
 function scratch_is_duplicate(){
   local scr_uuid=$1
@@ -75,7 +58,7 @@ function new_scratch(){
   scr_uuid=$(slugify "$scr_name")
 
   if [ -z "$scr_uuid" ]; then
-    scr_uuid=$(random_id)
+    scr_uuid=$(uuidgen | cut -d'-' -f1)
   fi
 
   if scratch_is_duplicate "$scr_uuid"; then
@@ -87,23 +70,20 @@ function new_scratch(){
 
   read -p "Want me to set up simple JS and CSS files? (y/n): " create_assets
 
+  # copy blueprint files to target directory
   if [ "$create_assets" == "y" ]; then
     cp -r "$HOME/src/gh-scratches//blueprints/simple" "$dir"
   else
     cp -r "$HOME/src/gh-scratches//blueprints/raw" "$dir"
   fi
 
+  # create log files
   touch "$dir/error.log"
 
+  # replace placeholders
   local escaped_dir=$(echo "$dir" | sed 's/\//\\\//g')
   sed -i '' "s/%DIRECTORY%/$escaped_dir/g" "$dir/index.php"
   sed -i '' "s/%TITLE%/$scr_uuid/g" "$dir/index.php"
-
-  # sed -i '' "s/%DIRECTORY%/$dir/g" "$dir/index.php"
-
-  # ask the user if they want the directory to have a blueprint setup via a y/n prompt
-
-  # scaffold_directory "$scr_uuid"
 
   register_hostname "$scr_uuid"
   start_scratch "$scr_uuid"
@@ -219,10 +199,9 @@ function get_scratch_pid(){
 function get_all_scratches(){
   local scratches=()
   for dir in "$scr_dir"/*; do
-    if [ ! -f "$dir/$scr_scratch_file" ]; then
-      continue
+    if [ -f "$dir/index.php" ] || [ -f "$dir/index.html" ]; then
+      scratches+=($(basename $dir))
     fi
-    scratches+=($(basename $dir))
   done
   echo ${scratches[@]}
 }
@@ -232,10 +211,10 @@ function list_all_scratches(){
   local scratches=$(get_all_scratches)
   for scr_uuid in $scratches; do
     local pid=$(get_scratch_pid $scr_uuid)
-    local url=$(get_scratch_address $scr_uuid)
     if [ -z "$pid" ]; then
       echo "STOPPED\t$pid\t$scr_uuid"
     else
+      local url=$(get_scratch_address $scr_uuid)
       echo "RUNNING\t$pid\t$scr_uuid\t$url"
     fi
     n=$((n+1))
