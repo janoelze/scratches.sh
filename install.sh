@@ -20,8 +20,8 @@ function add_alias(){
 
 function install_scratches(){
   local SCRATCHES_REPOSITORY="janoelze/scratches.sh"
-  local REPO_URL="https://github.com/$SCRATCHES_REPOSITORY/archive/main.zip"
-  local SCRATCHES_ARCHIVE_NAME="scratches.sh-main"
+  local ARCHIVE_URL="https://github.com/$SCRATCHES_REPOSITORY/archive/main.zip"
+  local UNZIPPED_ARCHIVE_NAME="scratches.sh-main"
   local INSTALL_TYPE=""
   local ALIAS="ghscratches"
 
@@ -43,9 +43,9 @@ function install_scratches(){
   fi
 
   # Download the ZIP file and extract its contents to the target directory
-  curl -q -L "$REPO_URL" -o repo.zip > /dev/null 2>&1
+  curl -q -L "$ARCHIVE_URL" -o repo.zip > /dev/null 2>&1
   unzip -q repo.zip -d "$TARGET_DIR/"
-  mv "$TARGET_DIR/$SCRATCHES_ARCHIVE_NAME" "$TARGET_DIR/src"
+  mv "$TARGET_DIR/$UNZIPPED_ARCHIVE_NAME" "$TARGET_DIR/src"
 
   # Clean up by deleting the ZIP file
   rm repo.zip
