@@ -237,39 +237,82 @@ function get_all_scratches(){
 }
 
 function list_all_scratches(){
+  local all_scratches=$(list_all_scratches_json)
   local n=0
-  local scratches=$(get_all_scratches)
-  for scr_uuid in $scratches; do
-    local pid=$(get_scratch_pid $scr_uuid)
-    if [ -z "$pid" ]; then
-      echo "STOPPED\t$pid\t$scr_uuid"
-    else
-      local url=$(get_scratch_address $scr_uuid)
-      echo "RUNNING\t$pid\t$scr_uuid\t$url"
+  local longest_id=0
+
+  for scratch in $(echo "$all_scratches" | jq -r '.[] | @base64'); do
+    _jq() {
+      echo ${scratch} | base64 --decode | jq -r ${1}
+    }
+
+    local id=$(_jq '.id')
+    local id_length=${#id}
+
+    if [ $id_length -gt $longest_id ]; then
+      longest_id=$id_length
     fi
-    n=$((n+1))
   done
-  if [ $n -eq 0 ]; then
-    echo "No scratches found"
-  fi
+
+  for scratch in $(echo "$all_scratches" | jq -r '.[] | @base64'); do
+    _jq() {
+      echo ${scratch} | base64 --decode | jq -r ${1}
+    }
+
+    _pad(){
+      printf "%-$1s" "$2"
+    }
+
+    n=$((n+1))
+
+    local line=""
+    local id=$(_jq '.id')
+    local pid=$(_jq '.pid')
+    local host=$(_jq '.host')
+    local port=$(_jq '.port')
+    local status=$(_jq '.status')
+    local address="http://$host:$port"
+
+    if [ "$status" == "stopped" ]; then
+      address="n/a"
+      pid="n/a"
+    fi
+
+    line="$(_pad 3 "$n")"
+    line="$line $(_pad 9 "$status")"
+    line="$line $(_pad 7 "$pid")"
+    line="$line $(_pad $((longest_id+2)) "$id")"
+    line="$line $address"
+
+    echo "$line"
+  done
+}
+
+function get_scratch_field () {
+  local all_scratches=$1
+  local scratch_id=$2
+  local field=".$3"
+  echo "$all_scratches" | jq -r ".[] | select(.id == \"$scratch_id\") | $field"
 }
 
 function open_scratch(){
-  local scr_uuid=$1
-  local pid=$(get_scratch_pid $scr_uuid)
+  local scratch_id=$1
+  local all_scratches=$(list_all_scratches_json)
+  local scratch_status=$(get_scratch_field "$all_scratches" "$scratch_id" "status")
 
-  if [ -z "$pid" ]; then
-    start_scratch $scr_uuid
+  if [ "$scratch_status" == "stopped" ]; then
+    start_scratch $scratch_id
   fi
 
-  local url=$(get_scratch_address $scr_uuid)
+  local scratch_host=$(get_scratch_field "$all_scratches" "$scratch_id" "host")
+  local scratch_port=$(get_scratch_field "$all_scratches" "$scratch_id" "port")
 
-  if [ -z "$url" ]; then
-    echo "Scratch '$scr_uuid' is not running"
+  if [ -z "$scratch_host" ] || [ -z "$scratch_port" ]; then
+    echo "Scratch '$scratch_id' is not running"
     return
   fi
 
-  open $url
+  open "http://$scratch_host:$scratch_port"
 }
 
 function is_installed(){
@@ -281,23 +324,18 @@ function is_installed(){
 }
 
 function start_ngrok_tunnel(){
-  local scr_uuid=$1
-  local scratches=$(get_all_scratches)
+  local scratch_id=$1
+  local all_scratches=$(list_all_scratches_json)
 
-  for id in $scratches; do
-    if [ -n "$scr_uuid" ] && [ "$scr_uuid" != "$id" ]; then
-      continue
-    fi
-    local url=$(get_scratch_address $scr_uuid)
-    local port=$(echo $url | cut -d':' -f3)
-  done
+  local scratch_host=$(get_scratch_field "$all_scratches" "$scratch_id" "host")
+  local scratch_port=$(get_scratch_field "$all_scratches" "$scratch_id" "port")
 
-  if [ -z "$port" ]; then
-    echo "Scratch '$scr_uuid' is not running"
+  if [ -z "$scratch_port" ]; then
+    echo "Scratch '$scratch_id' is not running"
     return
   fi
 
-  ngrok http "$host:$port"
+  ngrok http $scratch_host:$scratch_port
 }
 
 function get_scratch_dir(){
@@ -318,7 +356,7 @@ function list_all_scratches_json(){
       local port=$(echo $url | cut -d':' -f3)
       local host=$(echo $url | cut -d':' -f2 | cut -d'/' -f3)
       local protocol=$(echo $url | cut -d':' -f1)
-      json="$json{\"id\":\"$scr_uuid\",\"status\":\"running\",\"protocol\":\"$protocol\",\"host\":\"$host\",\"pid\":$pid,\"port\":$port,\"directory\":\"$dir\"},"
+      json="$json{\"id\":\"$scr_uuid\",\"status\":\"running\",\"protocol\":\"$protocol\",\"host\":\"$host\",\"url\":\"$url\",\"pid\":$pid,\"port\":$port,\"directory\":\"$dir\"},"
     fi
   done
   json="${json%?}]"
