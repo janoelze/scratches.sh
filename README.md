@@ -58,8 +58,8 @@ Created scratch 'hello-world'
 __List all scratches__
 ```
 $ scratches ls
-3   running   59765   hello-world         http://hello-world.scratch:54560
-4   running   60334   table-layout-test   http://table-layout-test.scratch:50985
+1   running   59765   hello-world         http://hello-world.scratch:54560
+2   running   61123   mastodon-api-test   http://mastodon-api-test.scratch:64557
 ```
 
 __Open a scratch in your default browser__

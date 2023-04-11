@@ -250,10 +250,6 @@ function list_all_scratches(){
   local longest_id=0
 
   for scratch in $(echo "$all_scratches" | jq -r '.[] | @base64'); do
-    n=$((n+1))
-  done
-
-  for scratch in $(echo "$all_scratches" | jq -r '.[] | @base64'); do
     local id=$(_jq '.id')
     local id_length=${#id}
 
