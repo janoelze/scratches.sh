@@ -11,15 +11,12 @@ SCRATCHES_AUTOEDIT=1 # open scratch in editor after creation
 # Check if the config file exists; if not, create it with default values
 if [ ! -f "$SCRATCHES_CONFIG_FILE" ]; then
   echo "Creating new scratches config file at $SCRATCHES_CONFIG_FILE"
-  defaults="
-    SCRATCHES_CONFIG_FILE=\"$SCRATCHES_CONFIG_FILE\"
-    SCRATCHES_DIRECTORY=\"$SCRATCHES_DIRECTORY\"
-    SCRATCHES_HOST_NAME=\"$SCRATCHES_HOST_NAME\"
-    SCRATCHES_AUTOSTART=$SCRATCHES_AUTOSTART
-    SCRATCHES_AUTOOPEN=$SCRATCHES_AUTOOPEN
-    SCRATCHES_AUTOEDIT=$SCRATCHES_AUTOEDIT
-  "
-  echo "$defaults" > "$SCRATCHES_CONFIG_FILE"
+  echo "SCRATCHES_CONFIG_FILE=\"$SCRATCHES_CONFIG_FILE\"" > "$SCRATCHES_CONFIG_FILE"
+  echo "SCRATCHES_DIRECTORY=\"$SCRATCHES_DIRECTORY\"" >> "$SCRATCHES_CONFIG_FILE"
+  echo "SCRATCHES_HOST_NAME=\"$SCRATCHES_HOST_NAME\"" >> "$SCRATCHES_CONFIG_FILE"
+  echo "SCRATCHES_AUTOSTART=$SCRATCHES_AUTOSTART" >> "$SCRATCHES_CONFIG_FILE"
+  echo "SCRATCHES_AUTOOPEN=$SCRATCHES_AUTOOPEN" >> "$SCRATCHES_CONFIG_FILE"
+  echo "SCRATCHES_AUTOEDIT=$SCRATCHES_AUTOEDIT" >> "$SCRATCHES_CONFIG_FILE"
 fi
 
 # Load the config file
@@ -57,7 +54,6 @@ function scratch_is_duplicate(){
   local dir="$SCRATCHES_DIRECTORY/$scr_uuid"
 
   if [ -d "$dir" ]; then
-    echo "Scratch '$scr_uuid' already exists"
     return 0
   fi
 
@@ -169,16 +165,21 @@ function edit_scratch(){
 
 function remove_scratch(){
   local scr_uuid=$1
-  local SCRATCHES_DIRECTORY=$SCRATCHES_DIRECTORY/$scr_uuid
+  local dir=$SCRATCHES_DIRECTORY/$scr_uuid
+  local pid=$(get_scratch_pid $scr_uuid)
 
-  if [ ! -d "$SCRATCHES_DIRECTORY" ]; then
+  if [ -n "$pid" ]; then
+    echo "Stopping scratch '$scr_uuid'"
+    stop_scratch $scr_uuid
+  fi
+
+  if [ ! -d "$dir" ]; then
     echo "Scratch '$scr_uuid' does not exist"
     return
   fi
 
   unregister_hostname $scr_uuid
-  stop_scratch $scr_uuid
-  rm -rf "$SCRATCHES_DIRECTORY/$scr_uuid"
+  rm -rf "$dir"
   echo "Removed scratch '$scr_uuid'"
 }
 
@@ -299,6 +300,31 @@ function start_ngrok_tunnel(){
   ngrok http "$host:$port"
 }
 
+function get_scratch_dir(){
+  local scr_uuid=$1
+  echo "$SCRATCHES_DIRECTORY/$scr_uuid"
+}
+
+function list_all_scratches_json(){
+  local scratches=$(get_all_scratches)
+  local json="["
+  for scr_uuid in $scratches; do
+    local pid=$(get_scratch_pid $scr_uuid)
+    local dir=$(get_scratch_dir $scr_uuid)
+    if [ -z "$pid" ]; then
+      json="$json{\"id\":\"$scr_uuid\",\"status\":\"stopped\",\"directory\":\"$dir\"},"
+    else
+      local url=$(get_scratch_address $scr_uuid)
+      local port=$(echo $url | cut -d':' -f3)
+      local host=$(echo $url | cut -d':' -f2 | cut -d'/' -f3)
+      local protocol=$(echo $url | cut -d':' -f1)
+      json="$json{\"id\":\"$scr_uuid\",\"status\":\"running\",\"protocol\":\"$protocol\",\"host\":\"$host\",\"pid\":$pid,\"port\":$port,\"directory\":\"$dir\"},"
+    fi
+  done
+  json="${json%?}]"
+  echo $json | jq
+}
+
 function require_param(){
   if [ -z "$1" ]; then
     echo "$2"
@@ -317,6 +343,8 @@ elif [ "$1" = "new" ]; then
   new_scratch
 elif [ "$1" = "ls" ]; then
   list_all_scratches
+elif [ "$1" = "jsonls" ]; then
+  list_all_scratches_json
 elif [ "$1" = "edit" ]; then
   require_param "$2" "Please provide a scratch id."
   edit_scratch "$2"
@@ -340,12 +368,13 @@ elif [ "$1" = "stop" ]; then
   fi
 else
   echo "scratches.sh"
-  echo "  new - create a new scratch"
-  echo "  list - list all scratches"
-  echo "  open - open a scratch in your default browser"
-  echo "  start - start all scratches"
-  echo "  stop - stop all scratches"
-  echo "  edit - edit a scratch (requires vscode)"
+  echo "  new - creates a new scratch"
+  echo "  ls - lists all scratches"
+  echo "  jsonls - lists all scratches as json"
+  echo "  open - opens a scratch in your default browser"
+  echo "  start - starts all scratches"
+  echo "  stop - stops all scratches"
+  echo "  edit - opens a scratch in visual studio code (requires vscode)"
   if [ $(is_installed "ngrok") -eq 1 ]; then
     echo "  tunnel - tunnel a scratch (requires ngrok)"
   fi

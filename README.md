@@ -36,12 +36,13 @@ alias scratches="sh {locationToRepo}/scratches.sh"
 ```
 $ scratches
 scratches.sh
-  new - create a new scratch
-  list - list all scratches
-  open - open a scratch in your default browser
-  start - start all scratches
-  stop - stop all scratches
-  edit - edit a scratch (requires vscode)
+  new - creates a new scratch
+  ls - lists all scratches
+  jsonls - lists all scratches as json
+  open - opens a scratch in your default browser
+  start - starts all scratches
+  stop - stops all scratches
+  edit - opens a scratch in visual studio code (requires vscode)
   tunnel - tunnel a scratch (requires ngrok)
 ```
 
