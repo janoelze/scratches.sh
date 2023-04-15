@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 
-# find real path to current script entry point
-SCRATCHES_SRC_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
-SCRATCHES_SRC_PARENT_PATH="$(dirname "$SCRATCHES_SRC_PATH")"
+SCRATCH_CONFIG_FILE="$HOME/.scratch-config"
 
-if [[ "$SCRATCHES_SRC_PARENT_PATH" == "." ]]; then
-  SCRATCHES_SRC_PARENT_PATH=$(realpath "$path")
+if [ ! -f "$SCRATCH_CONFIG_FILE" ]; then
+  touch "$SCRATCH_CONFIG_FILE"
+  echo "SCRATCHES_HOME=\"$HOME/scratches\"" >> "$SCRATCH_CONFIG_FILE"
+fi
+
+if [ -f "$SCRATCH_CONFIG_FILE" ]; then
+  . $SCRATCH_CONFIG_FILE
 fi
 
 # Config defaults
-SCRATCHES_HOME="$SCRATCHES_SRC_PARENT_PATH"
-SCRATCHES_DIRECTORY="$SCRATCHES_SRC_PARENT_PATH/env" # e.g. /Users/xyz/scratches
+SCRATCHES_DIRECTORY="$SCRATCHES_HOME/env" # e.g. /Users/xyz/scratches
 SCRATCHES_HOST_NAME="scratch" # e.g. http://xyz.scratch
 SCRATCHES_AUTOSTART=1 # start scratch after creation
 SCRATCHES_AUTOOPEN=1 # open scratch in browser after creation
@@ -24,7 +26,7 @@ function sudo_exec(){
 }
 
 function update_scratches(){
-  sh $SCRIPT_PATH/install.sh
+  sh $SCRATCHES_HOME/src/install.sh
 }
 
 function is_installed(){
@@ -92,30 +94,30 @@ function scratch_is_duplicate(){
 function new_scratch(){
   read -p "Enter a name for the scratch (optional): " scr_name
 
-  local scr_uuid=$(slugify "$scr_name")
+  local scratch_id=$(slugify "$scr_name")
 
-  if [ -z "$scr_uuid" ]; then
-    scr_uuid=$(uuidgen | cut -d'-' -f1)
+  if [ -z "$scratch_id" ]; then
+    scratch_id=$(uuidgen | cut -d'-' -f1)
   fi
 
-  if scratch_is_duplicate "$scr_uuid"; then
-    echo "Scratch '$scr_uuid' already exists"
+  if scratch_is_duplicate "$scratch_id"; then
+    echo "Scratch '$scratch_id' already exists"
     return
   fi
 
-  local SCRATCH_DIR="$SCRATCHES_DIRECTORY/$scr_uuid"
-  local BLUEPRINT_DIR="$SCRATCHES_SRC_PATH/blueprints/default"
+  local SCRATCH_DIR="$SCRATCHES_DIRECTORY/$scratch_id"
+  local BLUEPRINT_DIR="$SCRATCHES_HOME/src/blueprints/default"
 
   # create directory
   cp -r "$BLUEPRINT_DIR" "$SCRATCH_DIR"
 
   # rename files
-  mv "$SCRATCH_DIR/default.js" "$SCRATCH_DIR/$scr_uuid.js"
-  mv "$SCRATCH_DIR/default.css" "$SCRATCH_DIR/$scr_uuid.css"
+  mv "$SCRATCH_DIR/default.js" "$SCRATCH_DIR/$scratch_id.js"
+  mv "$SCRATCH_DIR/default.css" "$SCRATCH_DIR/$scratch_id.css"
 
   # replace placeholders
-  sed -i '' "s/default.css/$scr_uuid.css/g" "$SCRATCH_DIR/index.php"
-  sed -i '' "s/default.js/$scr_uuid.js/g" "$SCRATCH_DIR/index.php"
+  sed -i '' "s/default.css/$scratch_id.css/g" "$SCRATCH_DIR/index.php"
+  sed -i '' "s/default.js/$scratch_id.js/g" "$SCRATCH_DIR/index.php"
 
   # create log files
   touch "$SCRATCH_DIR/error.log"
@@ -123,21 +125,21 @@ function new_scratch(){
   # replace placeholders
   local escaped_dir=$(echo "$SCRATCH_DIR" | sed 's/\//\\\//g')
   sed -i '' "s/%DIRECTORY%/$escaped_dir/g" "$SCRATCH_DIR/index.php"
-  sed -i '' "s/%TITLE%/$scr_uuid/g" "$SCRATCH_DIR/index.php"
+  sed -i '' "s/%TITLE%/$scratch_id/g" "$SCRATCH_DIR/index.php"
 
-  if ! hostname_is_registered "$scr_uuid"; then
-    register_hostname "$scr_uuid"
+  if ! hostname_is_registered "$scratch_id"; then
+    register_hostname "$scratch_id"
   fi
 
   if [ "$SCRATCHES_AUTOSTART" == "1" ]; then
-    start_scratch "$scr_uuid"
+    start_scratch "$scratch_id"
   fi
 
   if [ "$SCRATCHES_AUTOOPEN" == "1" ]; then
-    open_scratch "$scr_uuid"
+    open_scratch "$scratch_id"
   fi
 
-  echo "Created scratch '$scr_uuid'"
+  echo "Created scratch '$scratch_id'"
 }
 
 function start_scratch(){
@@ -183,7 +185,7 @@ function remove_scratch(){
     fi
 
     if [ -d "$dir" ]; then
-      echo "Removing scratch directory"
+      echo "Removing scratch directory '$dir'"
       rm -rf "$dir"
     else
       echo "Scratch directory '$dir' does not exist"
