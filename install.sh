@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+function cecho(){
+  local color=$1
+
+  if [ "$color" = "red" ]; then
+    color="31"
+  fi
+  
+  if [ "$color" = "green" ]; then
+    color="32"
+  fi
+
+  local text=$2
+  echo "\033[0;${color}m${text}\033[0m"
+}
+
 function add_alias(){
   local RC_FILE="$1"
   local ALIAS="$2"
@@ -56,9 +71,9 @@ function install_scratches(){
   fi
 
   if [ "$INSTALL_TYPE" = "install" ]; then
-    echo "scratches.sh installed successfully!"
+    cecho "green" "scratches.sh installed successfully!"
   else
-    echo "scratches.sh updated successfully!"
+    cecho "green" "scratches.sh updated successfully!"
   fi
 
   if [ "$INSTALL_TYPE" = "install" ]; then

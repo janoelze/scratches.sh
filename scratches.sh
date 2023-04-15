@@ -20,6 +20,21 @@ SCRATCHES_AUTOEDIT=1 # open scratch in editor after creation
 
 # Helpers
 
+function cecho(){
+  local color=$1
+
+  if [ "$color" = "red" ]; then
+    color="31"
+  fi
+  
+  if [ "$color" = "green" ]; then
+    color="32"
+  fi
+
+  local text=$2
+  echo "\033[0;${color}m${text}\033[0m"
+}
+
 function sudo_exec(){
   local cmd=$1
   sudo -- sh -c -e "$cmd"
