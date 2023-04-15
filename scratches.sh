@@ -154,7 +154,7 @@ function new_scratch(){
     open_scratch "$scratch_id"
   fi
 
-  echo "Created scratch '$scratch_id'"
+  cecho "green" "Created scratch '$scratch_id'"
 }
 
 function start_scratch(){
@@ -191,25 +191,26 @@ function remove_scratch(){
   scratch_ids="$*"
 
   for scratch_id in $scratch_ids; do
+    local error=0
     local dir="$SCRATCHES_DIRECTORY/$scratch_id"
     local pid=$(get_scratch_pid $scratch_id)
+
+    if [ -d "$dir" ]; then
+      echo "Removing scratch directory '$dir'"
+      rm -rf "$dir"
+    fi
 
     if [ -n "$pid" ]; then
       echo "Stopping scratch '$scratch_id'"
       stop_scratch $scratch_id
     fi
 
-    if [ -d "$dir" ]; then
-      echo "Removing scratch directory '$dir'"
-      rm -rf "$dir"
-    else
-      echo "Scratch directory '$dir' does not exist"
-    fi
-
     if hostname_is_registered $scratch_id; then
       echo "Removing hostname from /etc/hosts"
       unregister_hostname $scratch_id
     fi
+
+    cecho "green" "Successfully removed scratch '$scratch_id'"
   done
 }
 
@@ -300,6 +301,11 @@ function list_all_scratches(){
   local all_scratches=$(list_all_scratches_json)
   local n=0
   local longest_id=0
+
+  if [ "$all_scratches" == "[]" ]; then
+    echo "You have no scratches! :("
+    return
+  fi
 
   for scratch_id in $(echo "$all_scratches" | jq -r '.[] | .id'); do
     local string_length=$(echo -n "$scratch_id" | wc -m)
@@ -431,8 +437,6 @@ elif [ "$1" = "update" ]; then
   update_scratches
 elif [ "$1" = "ls" ]; then
   list_all_scratches
-elif [ "$1" = "ps" ]; then
-  list_processes_json
 elif [ "$1" = "jsonls" ]; then
   list_all_scratches_json
 elif [ "$1" = "edit" ]; then
