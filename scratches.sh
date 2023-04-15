@@ -166,29 +166,34 @@ function stop_scratch(){
 }
 
 function edit_scratch(){
-  local scr_uuid=$1
-  code "$SCRATCHES_DIRECTORY/$scr_uuid"
+  local scratch_id="$1"
+  code "$SCRATCHES_DIRECTORY/$scratch_id"
 }
 
 function remove_scratch(){
-  local scr_uuid=$1
-  local dir=$SCRATCHES_DIRECTORY/$scr_uuid
-  local pid=$(get_scratch_pid $scr_uuid)
+  scratch_ids="$*"
 
-  if [ -n "$pid" ]; then
-    echo "Stopping scratch"
-    stop_scratch $scr_uuid
-  fi
+  for scratch_id in $scratch_ids; do
+    local dir="$SCRATCHES_DIRECTORY/$scratch_id"
+    local pid=$(get_scratch_pid $scratch_id)
 
-  if [ -d "$dir" ]; then
-    echo "Removing scratch directory"
-    rm -rf "$dir"
-  fi
+    if [ -n "$pid" ]; then
+      echo "Stopping scratch '$scratch_id'"
+      stop_scratch $scratch_id
+    fi
 
-  if hostname_is_registered $scr_uuid; then
-    echo "Removing hostname from /etc/hosts"
-    unregister_hostname $scr_uuid
-  fi
+    if [ -d "$dir" ]; then
+      echo "Removing scratch directory"
+      rm -rf "$dir"
+    else
+      echo "Scratch directory '$dir' does not exist"
+    fi
+
+    if hostname_is_registered $scratch_id; then
+      echo "Removing hostname from /etc/hosts"
+      unregister_hostname $scratch_id
+    fi
+  done
 }
 
 function scratch_pid_is_running() {
@@ -421,7 +426,7 @@ elif [ "$1" = "open" ]; then
   open_scratch "$2"
 elif [ "$1" = "rm" ]; then
   require_param "$2" "Please provide a scratch id."
-  remove_scratch "$2"
+  remove_scratch "${@:2}"
 elif [ "$1" = "start" ]; then
   if [ -z "$2" ]; then
     start_all_scratches
