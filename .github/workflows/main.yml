@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: Install zsh
         run: sudo apt-get update; sudo apt-get install zsh
+      - name: Output current shell
+        run: echo $SHELL
       - name: Install scratches
         run: curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | sh
       - name: Source zshrc
