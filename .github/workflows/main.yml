@@ -1,0 +1,16 @@
+name: Test 
+on:
+  workflow_dispatch:
+jobs:
+  jobName:
+    name: Test Install on zsh
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install zsh
+        run: sudo apt-get update; sudo apt-get install zsh
+      - name: Install scratches
+        run: curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | sh
+      - name: Source zshrc
+        run: source ~/.zshrc
+      - name: Install scratches
+        run: scratches ls
