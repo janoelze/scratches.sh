@@ -10,19 +10,10 @@ jobs:
       - name: Set up zsh
         run: |
           sudo apt-get install zsh php jq
-      - name: Create zsh config
-        run: |
-          touch ~/.zshrc
       - name: Install scratches
         shell: zsh {0}
         run: |
           curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | bash
-      - name: Reload zsh
-        shell: zsh {0}
-        run: |
-          source ~/.zshrc
-      - name: Output bash config
-        run: cat ~/.bashrc
       - name: Create mock scratch
         shell: zsh {0}
         run: |
@@ -32,10 +23,8 @@ jobs:
       - name: List scratches
         shell: zsh {0}
         run: |
-          source ~/.zshrc
-          scratches ls
+          zsh ~/scratches/src/scratches.sh ls
       - name: Start scratch
         shell: zsh {0}
         run: |
-          source ~/.zshrc
-          scratches start hello-world
+          zsh ~/scratches/src/scratches.sh start hello-world

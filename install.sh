@@ -10,6 +10,18 @@ SC_ALIAS="scratches"
 SC_TARGET_DIR="$HOME/scratches"
 SC_DIR_EXISTS=$(if [ -d "$SC_TARGET_DIR" ]; then echo "1"; else echo "0"; fi)
 
+# Output vars
+
+echo "SC_REPOSITORY: $SC_REPOSITORY"
+echo "SC_ARCHIVE_URL: $SC_ARCHIVE_URL"
+echo "SC_UNZIPPED_ARCHIVE_NAME: $SC_UNZIPPED_ARCHIVE_NAME"
+echo "SC_INSTALL_TYPE: $SC_INSTALL_TYPE"
+echo "SC_USER_FILE: $SC_USER_FILE"
+echo "SC_SHELL_NAME: $SC_SHELL_NAME"
+echo "SC_ALIAS: $SC_ALIAS"
+echo "SC_TARGET_DIR: $SC_TARGET_DIR"
+echo "SC_DIR_EXISTS: $SC_DIR_EXISTS"
+
 # Create scratches directory
 
 if [ "$SC_DIR_EXISTS" = "1" ]; then
