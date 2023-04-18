@@ -11,7 +11,7 @@ jobs:
       - name: Output current shell
         run: echo $SHELL
       - name: Install scratches
-        run: curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | sh
+        run: curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | zsh
       - name: Source zshrc
         run: source ~/.zshrc
       - name: Install scratches

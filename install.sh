@@ -1,20 +1,5 @@
 #!/usr/bin/env bash
 
-function cecho(){
-  local color=$1
-
-  if [ "$color" = "red" ]; then
-    color="31"
-  fi
-  
-  if [ "$color" = "green" ]; then
-    color="32"
-  fi
-
-  local text=$2
-  echo "\033[0;${color}m${text}\033[0m"
-}
-
 function add_alias(){
   local RC_FILE="$1"
   local ALIAS="$2"
@@ -64,16 +49,22 @@ function install_scratches(){
   rm repo.zip
 
   # Add the alias to the user's shell configuration file
+
+  # if $SHELL equal to bash
+
+
   if [ -f "$HOME/.bashrc" ]; then
     add_alias "$HOME/.bashrc" "$ALIAS"
   elif [ -f "$HOME/.zshrc" ]; then
     add_alias "$HOME/.zshrc" "$ALIAS"
   fi
 
+  # install
+
   if [ "$INSTALL_TYPE" = "install" ]; then
-    cecho "green" "scratches.sh installed successfully!"
+    echo "scratches.sh installed successfully!"
   else
-    cecho "green" "scratches.sh updated successfully!"
+    echo "scratches.sh updated successfully!"
   fi
 
   if [ "$INSTALL_TYPE" = "install" ]; then
