@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 SCRATCH_CONFIG_FILE="$HOME/.scratch-config"
 
