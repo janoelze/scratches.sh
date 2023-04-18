@@ -9,7 +9,7 @@ jobs:
         uses: actions/checkout@v2
       - run: |
           sudo apt-get install php jq
-      - name: Set up bash
+      - name: Create bash config
         run: |
           touch ~/.bashrc
       - name: Install scratches

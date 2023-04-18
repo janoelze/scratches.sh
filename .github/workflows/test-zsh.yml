@@ -10,6 +10,9 @@ jobs:
       - name: Set up zsh
         run: |
           sudo apt-get install zsh php jq
+      - name: Create zsh config
+        run: |
+          touch ~/.zshrc
       - name: Install scratches
         shell: zsh {0}
         run: |
