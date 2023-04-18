@@ -10,8 +10,8 @@ jobs:
       - name: Set up zsh
         run: |
           sudo apt-get install zsh
-          chsh -s $(which zsh)
       - name: Install scratches
+        shell: zsh {0}
         run: |
           curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | zsh
 # jobs:
