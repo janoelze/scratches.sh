@@ -2,24 +2,37 @@ name: Test
 on:
   workflow_dispatch:
 jobs:
-  jobName:
-    name: Test Install on zsh
+  build:
     runs-on: ubuntu-latest
-    defaults:
-     run:
-       shell: zsh {0}
     steps:
-      # - name: Install zsh
-      #   run: sudo apt-get update; sudo apt-get install zsh
-      - name: Output current shell
-        run: echo $SHELL
-      # - name: Change shell to zsh
-      #   run: chsh -s $(which zsh)
-      # - name: Create zshrc
-      #   run: touch ~/.zshrc
-      # - name: Install scratches
-      #   run: curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | zsh
-      # - name: Source zshrc
-      #   run: source ~/.zshrc
-      # - name: Install scratches
-      #   run: scratches ls
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up zsh
+        run: |
+          sudo apt-get install zsh
+          chsh -s $(which zsh)
+      - name: Install scratches
+        run: |
+          curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | zsh
+# jobs:
+#   jobName:
+#     name: Test Install on zsh
+#     runs-on: ubuntu-latest
+#     defaults:
+#      run:
+#        shell: zsh {0}
+#     steps:
+#       # - name: Install zsh
+#       #   run: sudo apt-get update; sudo apt-get install zsh
+#       - name: Output current shell
+#         run: echo $SHELL
+#       # - name: Change shell to zsh
+#       #   run: chsh -s $(which zsh)
+#       # - name: Create zshrc
+#       #   run: touch ~/.zshrc
+#       # - name: Install scratches
+#       #   run: curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | zsh
+#       # - name: Source zshrc
+#       #   run: source ~/.zshrc
+#       # - name: Install scratches
+#       #   run: scratches ls
