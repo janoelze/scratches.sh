@@ -21,6 +21,8 @@ jobs:
         shell: zsh {0}
         run: |
           source ~/.zshrc
+      - name: Output bash config
+        run: cat ~/.bashrc
       - name: Create mock scratch
         shell: zsh {0}
         run: |
@@ -29,7 +31,11 @@ jobs:
           echo "Hello World!" > ~/scratches/env/hello-world/index.html
       - name: List scratches
         shell: zsh {0}
-        run: scratches ls
+        run: |
+          source ~/.zshrc
+          scratches ls
       - name: Start scratch
         shell: zsh {0}
-        run: scratches start hello-world
+        run: |
+          source ~/.zshrc
+          scratches start hello-world
