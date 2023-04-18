@@ -7,6 +7,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - run: |
+          sudo apt-get install php jq
       - name: Install scratches
         run: |
           curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | bash
+      - name: Create mock scratch
+        run: |
+          mkdir -p ~/scratches/env
+          mkdir -p ~/scratches/env/hello-world
+          echo "Hello World!" > ~/scratches/env/hello-world/index.html
+      - name: Create mock scratch
+        run: |
+          mkdir -p ~/scratches/env
+          mkdir -p ~/scratches/env/hello-world
+          echo "Hello World!" > ~/scratches/env/hello-world/index.html
+      - name: List scratches
+        run: scratches ls
+      - name: Start scratch
+        run: scratches start hello-world

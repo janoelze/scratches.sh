@@ -9,8 +9,20 @@ jobs:
         uses: actions/checkout@v2
       - name: Set up zsh
         run: |
-          sudo apt-get install zsh
+          sudo apt-get install zsh php jq
       - name: Install scratches
         shell: zsh {0}
         run: |
-          curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | zsh
+          curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | bash
+      - name: Create mock scratch
+        shell: zsh {0}
+        run: |
+          mkdir -p ~/scratches/env
+          mkdir -p ~/scratches/env/hello-world
+          echo "Hello World!" > ~/scratches/env/hello-world/index.html
+      - name: List scratches
+        shell: zsh {0}
+        run: scratches ls
+      - name: Start scratch
+        shell: zsh {0}
+        run: scratches start hello-world
