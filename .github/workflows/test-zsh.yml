@@ -1,0 +1,16 @@
+name: Test zsh 
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up zsh
+        run: |
+          sudo apt-get install zsh
+      - name: Install scratches
+        shell: zsh {0}
+        run: |
+          curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | zsh

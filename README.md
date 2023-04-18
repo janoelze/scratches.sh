@@ -19,12 +19,12 @@ __Why use `scratches.sh`?__
 
 * [PHP](https://github.com/php/php-src)
 * [jq](https://github.com/stedolan/jq)
-* zsh/bash
+* zsh
 
 ## Installation
 
 ```
-curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | zsh
 ```
 
 ## Commands
