@@ -10,6 +10,10 @@ jobs:
         run: sudo apt-get update; sudo apt-get install zsh
       - name: Output current shell
         run: echo $SHELL
+      - name: Change shell to zsh
+        run: chsh -s $(which zsh)
+      - name: Create zshrc
+        run: touch ~/.zshrc
       - name: Install scratches
         run: curl -sSL https://raw.githubusercontent.com/janoelze/scratches.sh/main/install.sh | zsh
       - name: Source zshrc
