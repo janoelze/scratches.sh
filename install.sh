@@ -30,9 +30,9 @@ rm repo.zip
 
 # Add the alias to the user's shell configuration file
 
-if [ "$SHELL_NAME" = "bash" ]; then
+if [ "$SC_SHELL_NAME" = "bash" ]; then
   SC_USER_FILE="$HOME/.bashrc"
-elif [ "$SHELL_NAME" = "zsh" ]; then
+elif [ "$SC_SHELL_NAME" = "zsh" ]; then
   SC_USER_FILE="$HOME/.zshrc"
 fi
 
@@ -53,10 +53,10 @@ else
 fi
 
 if [ "$SC_INSTALL_TYPE" = "install" ]; then
-  if [ -f "$HOME/.bashrc" ]; then
+  if [ "$SC_SHELL_NAME" = "bash" ]; then
     echo "- Run 'source ~/.bashrc' to reload your shell configuration."
-  elif [ -f "$HOME/.zshrc" ]; then
+  elif [ "$SC_SHELL_NAME" = "zsh" ]; then
     echo "- Run 'source ~/.zshrc' to reload your shell configuration."
   fi
-  echo "- Then run '$ALIAS' to get started. :)"
+  echo "- Then run '$SC_ALIAS' to get started. :)"
 fi
